@@ -1,0 +1,160 @@
+package vn.edu.nlu.fit.tutorweb.dao;
+
+import org.mindrot.jbcrypt.BCrypt;
+import org.jdbi.v3.core.Jdbi;
+import vn.edu.nlu.fit.tutorweb.db.DBConnect;
+import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+
+import java.util.List;
+import java.util.Map;
+
+public class UserAuthDAO {
+    private final Jdbi jdbi = DBConnect.get();
+
+    public UserSession loginWithCredentials(String identifier, String password) {
+        String sql = "SELECT id, username, password, email, fullname, avatar_url, is_active " +
+                "FROM users WHERE email = :identifier OR username = :identifier";
+
+        return jdbi.withHandle(handle -> {
+            try {
+                return handle.createQuery(sql)
+                        .bind("identifier", identifier)
+                        .mapToMap()
+                        .findFirst()
+                        .map(row -> {
+                            Object activeObj = row.get("is_active");
+                            String activeStr = (activeObj != null) ? activeObj.toString() : "0";
+
+                            if ("false".equalsIgnoreCase(activeStr) || "0".equals(activeStr)) {
+                                System.out.println(">>> LOGIN: Tai khoan dang bi khoa!");
+                                return null;
+                            }
+
+                            String hashedPass = (String) row.get("password");
+
+                            // In thông tin ra Console để kiểm tra xem Java có đọc được DB không
+                            System.out.println(">>> LOGIN: Identifier nhap vao = " + identifier);
+                            System.out.println(">>> LOGIN: Chuoi password hash trong DB = " + hashedPass);
+
+                            if (hashedPass != null && BCrypt.checkpw(password, hashedPass)) {
+                                UserSession user = new UserSession();
+                                user.setId(Long.parseLong(row.get("id").toString()));
+                                user.setUsername((String) row.get("username"));
+                                user.setEmail((String) row.get("email"));
+                                user.setFullname((String) row.get("fullname"));
+                                user.setAvatarUrl((String) row.get("avatar_url"));
+                                user.setRoles(getUserRoles(user.getId()));
+                                return user;
+                            }
+
+                            System.out.println(">>> LOGIN: BCrypt.checkpw tra ve FALSE (Sai mat khau)!");
+                            return null;
+                        }).orElse(null);
+            } catch (Exception e) {
+                // In chi tiết lỗi đỏ lòm ra tab Console/Tomcat nếu code bi sập ngầm
+                System.err.println(">>> LỖI CHÍ MẠNG KHI ĐĂNG NHẬP:");
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
+    // 2. Đăng nhập mạng xã hội (Tự động đăng ký nếu chưa có tài khoản)
+    public UserSession loginOrRegisterSocial(String provider, String providerUserId, String email, String fullname, String avatarUrl) {
+        return jdbi.inTransaction(handle -> {
+            String checkIdentitySql = "SELECT user_id FROM user_identities WHERE provider = :provider AND provider_user_id = :pUid";
+            Long userId = handle.createQuery(checkIdentitySql)
+                    .bind("provider", provider.toUpperCase())
+                    .bind("pUid", providerUserId)
+                    .mapTo(Long.class)
+                    .findFirst()
+                    .orElse(null);
+
+            if (userId != null) {
+                return getUserById(userId);
+            }
+
+            String checkUserSql = "SELECT id FROM users WHERE email = :email";
+            userId = handle.createQuery(checkUserSql)
+                    .bind("email", email)
+                    .mapTo(Long.class)
+                    .findFirst()
+                    .orElse(null);
+
+            if (userId == null) {
+                String insertUserSql = "INSERT INTO users (username, password, email, fullname, avatar_url, is_active) " +
+                        "VALUES (:username, :password, :email, :fullname, :avatarUrl, 1)";
+
+                String randomUsername = "oauth_" + provider.toLowerCase() + "_" + providerUserId;
+                String randomPassword = BCrypt.hashpw(Long.toString(System.currentTimeMillis()), BCrypt.gensalt());
+
+                userId = handle.createUpdate(insertUserSql)
+                        .bind("username", randomUsername)
+                        .bind("password", randomPassword)
+                        .bind("email", email)
+                        .bind("fullname", fullname)
+                        .bind("avatarUrl", avatarUrl)
+                        .executeAndReturnGeneratedKeys("id")
+                        .mapTo(Long.class)
+                        .one();
+
+                String assignRoleSql = "INSERT INTO user_roles (user_id, role_id) SELECT :userId, id FROM roles WHERE name = 'USER'";
+                handle.createUpdate(assignRoleSql)
+                        .bind("userId", userId)
+                        .execute();
+            }
+
+            String insertIdentitySql = "INSERT INTO user_identities (user_id, provider, provider_user_id) VALUES (:userId, :provider, :pUid)";
+            handle.createUpdate(insertIdentitySql)
+                    .bind("userId", userId)
+                    .bind("provider", provider.toUpperCase())
+                    .bind("pUid", providerUserId)
+                    .execute();
+
+            return getUserById(userId);
+        });
+    }
+
+    // Hàm phụ lấy danh sách các Role (Quyền) của User từ DB
+    public List<String> getUserRoles(long userId) {
+        String sql = "SELECT r.name FROM roles r " +
+                "JOIN user_roles ur ON r.id = ur.role_id " +
+                "WHERE ur.user_id = :userId";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", userId)
+                        .mapTo(String.class)
+                        .list()
+        );
+    }
+
+    // Hàm phụ lấy User thông qua ID
+    public UserSession getUserById(long userId) {
+        String sql = "SELECT id, username, email, fullname, avatar_url, is_active FROM users WHERE id = :userId";
+
+        return jdbi.withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .bind("userId", userId)
+                    .mapToMap()
+                    .findFirst()
+                    .map(row -> {
+                        Object activeObj = row.get("is_active");
+                        String activeStr = (activeObj != null) ? activeObj.toString() : "0";
+
+                        if ("false".equalsIgnoreCase(activeStr) || "0".equals(activeStr)) {
+                            return null;
+                        }
+
+                        UserSession user = new UserSession();
+                        user.setId(Long.parseLong(row.get("id").toString()));
+                        user.setUsername((String) row.get("username"));
+                        user.setEmail((String) row.get("email"));
+                        user.setFullname((String) row.get("fullname"));
+                        user.setAvatarUrl((String) row.get("avatar_url"));
+                        user.setRoles(getUserRoles(userId));
+                        return user;
+                    }).orElse(null);
+        });
+    }
+}

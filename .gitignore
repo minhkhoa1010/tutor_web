@@ -1,0 +1,29 @@
+# Maven
+target/
+
+# Local config chứa secret
+db.properties
+*.properties.local
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Generated files
+out/

@@ -1,0 +1,212 @@
+/* ==========================================================================
+   CSS DÀNH RIÊNG CHO THÀNH PHẦN TRANG ĐĂNG NHẬP (LOGIN)
+   ========================================================================== */
+
+/* Khu vực bọc form ở giữa trang, co giãn theo chiều cao màn hình */
+.login-shell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+/* Khối hộp Đăng nhập trắng bo tròn góc */
+.login-card {
+    width: min(420px, 90vw);
+    background: var(--white);
+    border-radius: 24px;
+    padding: 40px 32px;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e2e8f0;
+    display: grid;
+    gap: 14px;
+    text-align: center;
+}
+
+.login-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--navy-900);
+    letter-spacing: -0.5px;
+}
+
+.login-sub {
+    color: var(--ink-500);
+    font-size: 13.5px;
+    margin-top: -6px;
+    margin-bottom: 10px;
+}
+
+.login-form {
+    text-align: left;
+    display: grid;
+    gap: 12px;
+}
+
+/* Ô bọc input có chứa Icon icon bên trong */
+.input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--cloud-100);
+    border-radius: 14px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.input-wrap .input-field {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 14px 4px;
+    font-size: 14px;
+    color: var(--ink-900);
+    outline: none;
+}
+
+.input-wrap .input-field::placeholder {
+    color: #94a3b8;
+}
+
+/* Hiệu ứng đổi màu viền khi click chuột vào ô nhập liệu */
+.input-wrap:focus-within {
+    background: var(--white);
+    border-color: var(--navy-700);
+    box-shadow: 0 0 0 4px rgba(20, 77, 128, 0.08);
+}
+
+.input-icon {
+    font-size: 14px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+}
+
+/* Thiết lập link Quên mật khẩu và Checkbox ghi nhớ */
+.login-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-700);
+    margin-top: 2px;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.remember input[type="checkbox"] {
+    accent-color: var(--navy-900);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.forgot {
+    color: var(--navy-900);
+    font-weight: 600;
+}
+
+/* Nút bấm Đăng nhập chính */
+.btn-login {
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px;
+    background: var(--navy-900);
+    color: var(--white);
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-login:hover {
+    background: var(--navy-800);
+    transform: translateY(-1px);
+}
+
+/* Đường gạch chữ HOẶC */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink-500);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin: 16px 0 8px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+/* Nút Google và Facebook */
+.social-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.social-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-700);
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.social-btn.google:hover {
+    background: #e2e8f0;
+}
+
+.social-btn.facebook {
+    background: #1877f2;
+    color: var(--white);
+    border-color: #1877f2;
+}
+
+.social-btn.facebook:hover {
+    background: #166fe5;
+}
+
+.login-footer {
+    font-size: 13px;
+    color: var(--ink-500);
+    margin-top: 12px;
+}
+
+.login-footer a {
+    color: var(--mint-600);
+    font-weight: 600;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive trên điện thoại nhỏ */
+@media (max-width: 480px) {
+    .social-row {
+        grid-template-columns: 1fr;
+    }
+}

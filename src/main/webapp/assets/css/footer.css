@@ -1,0 +1,47 @@
+.site-footer {
+    background: #f1f5f9;
+    padding: 36px 0 20px;
+    color: var(--ink-500);
+    font-size: 13px;
+    margin-top: auto; /* Đẩy footer xuống đáy trang khi ít nội dung */
+    border-top: 1px solid #e2e8f0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+.footer-brand {
+    font-weight: 700;
+    color: var(--navy-900);
+    margin-bottom: 6px;
+}
+
+.footer-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-text {
+    line-height: 1.5;
+}
+
+.footer-grid a {
+    color: var(--ink-700);
+    transition: color 0.2s ease;
+}
+
+.footer-grid a:hover {
+    color: var(--navy-900);
+}
+
+.footer-bottom {
+    margin-top: 22px;
+    text-align: center;
+    color: var(--ink-500);
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+}

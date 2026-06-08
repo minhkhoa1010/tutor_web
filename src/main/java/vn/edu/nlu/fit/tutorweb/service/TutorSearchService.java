@@ -3,7 +3,7 @@ package vn.edu.nlu.fit.tutorweb.service;
 import jakarta.servlet.http.HttpServletRequest;
 import vn.edu.nlu.fit.tutorweb.dao.TutorSearchDAO;
 
-import vn.edu.nlu.fit.tutorweb.entity.TutorProfile;
+import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 
 import java.util.List;
 

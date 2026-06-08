@@ -13,7 +13,7 @@ public class UserAuthDAO {
 
     public UserSession loginWithCredentials(String identifier, String password) {
         String sql = "SELECT id, username, password, email, fullname, avatar_url, is_active " +
-                "FROM users WHERE email = :identifier OR username = :identifier";
+                "FROM users WHERE email = :identifier OR username = :identifier OR phone = :identifier";
 
         return jdbi.withHandle(handle -> {
             try {
@@ -156,5 +156,60 @@ public class UserAuthDAO {
                         return user;
                     }).orElse(null);
         });
+    }
+
+    public boolean register(String email,
+                            String phone,
+                            String fullname,
+                            String password) {
+
+        try {
+            return jdbi.inTransaction(handle -> {
+
+                Long existed = handle.createQuery(
+                                "SELECT id FROM users " +
+                                        "WHERE email = :email OR phone = :phone")
+                        .bind("email", email)
+                        .bind("phone", phone)
+                        .mapTo(Long.class)
+                        .findFirst()
+                        .orElse(null);
+
+                if (existed != null) {
+                    return false;
+                }
+
+                String hashedPassword =
+                        BCrypt.hashpw(password, BCrypt.gensalt());
+
+                String username = email != null ? email : phone;
+
+                Long userId = handle.createUpdate(
+                                "INSERT INTO users " +
+                                        "(username,password,email,phone,fullname,is_active) " +
+                                        "VALUES (:username,:password,:email,:phone,:fullname,1)")
+                        .bind("username", username)
+                        .bind("password", hashedPassword)
+                        .bind("email", email)
+                        .bind("phone", phone)
+                        .bind("fullname", fullname)
+                        .executeAndReturnGeneratedKeys("id")
+                        .mapTo(Long.class)
+                        .one();
+
+                handle.createUpdate(
+                                "INSERT INTO user_roles(user_id,role_id) " +
+                                        "SELECT :userId,id FROM roles WHERE name='USER'")
+                        .bind("userId", userId)
+                        .execute();
+
+                return true;
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+
+        }
     }
 }

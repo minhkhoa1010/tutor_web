@@ -1,0 +1,373 @@
+/* =====================================================
+   RESET & ADMIN BASE LAYOUT (BẮT BUỘC PHẢI CÓ)
+   ===================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f5f7fb;
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Khung bọc bao quát hệ thống Admin của bạn */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Topbar Admin */
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 32px;
+    background: #fff;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #111827;
+}
+
+.brand-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+}
+
+.topbar-links {
+    margin-left: auto;
+    font-size: 13px;
+}
+
+.text-muted {
+    color: #64748b;
+}
+
+/* Page Body & Header Row */
+.page-body {
+    padding: 28px 32px;
+    flex: 1;
+    max-width: 1400px; /* Thêm giới hạn để màn hình rộng không bị bạt ngàn */
+    width: 100%;
+    margin: 0 auto;
+}
+
+.page-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.page-title-row h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.page-title-row p {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* Nút quay lại Dashboard gốc Admin của bạn */
+.btn-primary {
+    background: #111827;
+    color: #fff !important;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background .15s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #1f2937;
+}
+
+/* =====================================================
+   TUTOR DETAIL CONTAINER & LAYOUT
+   ===================================================== */
+.tutor-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
+    margin-top: 16px;
+}
+
+/* Sidebar Profile Card */
+.profile-card {
+    background: #ffffff;
+    border: 1px solid #e8edf3;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.03);
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.avatar-main {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f1f5f9;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.tutor-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.tutor-id-badge {
+    display: inline-block;
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.status-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fef3c7;
+    color: #d97706;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 30px;
+}
+
+/* Main content column */
+.detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* =====================================================
+   BLOCK CARDS & GRID INFO
+   ===================================================== */
+.info-section-card {
+    background: #ffffff;
+    border: 1px solid #e8edf3;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.03);
+}
+
+.section-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 14px;
+}
+
+.section-card-title i {
+    color: #64748b;
+    font-size: 15px;
+}
+
+/* Custom Grid inside Cards */
+.info-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 20px;
+}
+
+.info-grid-full {
+    grid-column: 1 / -1;
+}
+
+.data-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.data-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.data-value {
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Highlight specific field */
+.text-price {
+    color: #dc2626 !important;
+    font-weight: 700;
+}
+
+.subject-badge {
+    display: inline-block;
+    background: #eef2f6;
+    color: #1f2937;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =====================================================
+   DOCUMENT GALLERY
+   ===================================================== */
+.doc-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.doc-thumb-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.doc-thumb-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    border-color: #111827;
+}
+
+.doc-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.doc-sub-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin: 20px 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.empty-doc-text {
+    font-size: 13px;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 4px 0;
+}
+
+/* =====================================================
+   ACTION BUTTONS
+   ==================================================== */
+.action-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    margin-bottom: 40px;
+}
+
+.btn-action {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-approve {
+    background: #10b981;
+    color: #ffffff !important;
+}
+
+.btn-approve:hover {
+    background: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.btn-reject {
+    background: #ef4444;
+    color: #ffffff !important;
+}
+
+.btn-reject:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Responsive co giãn màn hình */
+@media (max-width: 992px) {
+    .tutor-container {
+        grid-template-columns: 1fr;
+    }
+    .info-grid-2col {
+        grid-template-columns: 1fr;
+    }
+}

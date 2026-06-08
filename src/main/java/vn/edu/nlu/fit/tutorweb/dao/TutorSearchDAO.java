@@ -1,7 +1,7 @@
 package vn.edu.nlu.fit.tutorweb.dao;
 
 import vn.edu.nlu.fit.tutorweb.db.DBConnect;
-import vn.edu.nlu.fit.tutorweb.entity.TutorProfile;
+import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +19,16 @@ public class TutorSearchDAO {
                                      Integer minRate,
                                      Integer maxRate) {
         StringBuilder sql = new StringBuilder();
+
+        // 1. Đồng bộ lại các trường SELECT theo đúng cấu trúc bảng tutors mới
         sql.append("SELECT ")
-                .append("u.id, u.full_name, t.gender, t.degree_level, t.min_rate, t.max_rate, ")
+                .append("t.id, u.fullname AS full_name, t.gender, t.qualification, t.hourly_rate, ")
+                .append("t.teaching_subject, t.teaching_area, t.birth_date, t.school, t.major, ")
+                // Giữ lại các trường GROUP_CONCAT nếu hệ thống của bạn có bảng liên kết tương ứng
                 .append("GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') AS subjects, ")
                 .append("GROUP_CONCAT(DISTINCT g.name ORDER BY g.name SEPARATOR ', ') AS grades, ")
                 .append("p.name AS province_name, d.name AS district_name ")
-                .append("FROM tutor_profiles t ")
+                .append("FROM tutors t ") // Chuyển từ tutor_profiles sang tutors
                 .append("JOIN users u ON u.id = t.user_id ")
                 .append("LEFT JOIN tutor_subjects ts ON ts.tutor_id = t.user_id ")
                 .append("LEFT JOIN subjects s ON s.id = ts.subject_id ")
@@ -35,11 +39,11 @@ public class TutorSearchDAO {
                 .append("LEFT JOIN provinces p ON p.id = d.province_id ")
                 .append("LEFT JOIN tutor_schedules tsc ON tsc.tutor_id = t.user_id ")
                 .append("LEFT JOIN schedule_slots ss ON ss.id = tsc.schedule_id ")
-                .append("WHERE u.role = 'TUTOR' AND u.status = 1 ");
+                .append("WHERE t.verification_status = 'APPROVED' AND u.is_active = 1 "); // Cập nhật điều kiện trạng thái của bạn
 
         Map<String, Object> params = new HashMap<>();
         if (keyword != null) {
-            sql.append("AND (u.full_name LIKE :kw OR t.bio LIKE :kw) ");
+            sql.append("AND (u.fullname LIKE :kw OR t.qualification LIKE :kw) ");
             params.put("kw", "%" + keyword + "%");
         }
         if (subjectId != null) {
@@ -67,23 +71,21 @@ public class TutorSearchDAO {
             params.put("gender", gender);
         }
         if (degreeLevel != null) {
-            sql.append("AND t.degree_level = :degreeLevel ");
+            sql.append("AND t.qualification = :degreeLevel "); // Hoặc cột tương đương trình độ của bạn
             params.put("degreeLevel", degreeLevel);
         }
-        if (teachingMode != null) {
-            sql.append("AND (t.teaching_mode = :teachingMode OR t.teaching_mode = 'BOTH') ");
-            params.put("teachingMode", teachingMode);
-        }
         if (minRate != null) {
-            sql.append("AND t.max_rate >= :minRate ");
+            sql.append("AND t.hourly_rate >= :minRate ");
             params.put("minRate", minRate);
         }
         if (maxRate != null) {
-            sql.append("AND t.min_rate <= :maxRate ");
+            sql.append("AND t.hourly_rate <= :maxRate ");
             params.put("maxRate", maxRate);
         }
 
-        sql.append("GROUP BY u.id, u.full_name, t.gender, t.degree_level, t.min_rate, t.max_rate, p.name, d.name ");
+        // Đảm bảo GROUP BY đầy đủ các cột đơn xuất hiện ở SELECT để tránh lỗi toán tử nghiêm ngặt SQL
+        sql.append("GROUP BY t.id, u.fullname, t.gender, t.qualification, t.hourly_rate, ")
+                .append("t.teaching_subject, t.teaching_area, t.birth_date, t.school, t.major, p.name, d.name ");
 
         return DBConnect.get().withHandle(handle -> {
             var jdbiQuery = handle.createQuery(sql.toString());
@@ -92,13 +94,23 @@ public class TutorSearchDAO {
                     rs.getLong("id"),
                     rs.getString("full_name"),
                     rs.getString("gender"),
-                    rs.getString("degree_level"),
-                    rs.getObject("min_rate") == null ? null : rs.getInt("min_rate"),
-                    rs.getObject("max_rate") == null ? null : rs.getInt("max_rate"),
-                    rs.getString("subjects"),
-                    rs.getString("grades"),
-                    rs.getString("province_name"),
-                    rs.getString("district_name")
+                    rs.getString("qualification"),
+                    rs.getObject("hourly_rate") != null ? rs.getInt("hourly_rate") : null, // minRate
+                    null, // maxRate
+                    rs.getString("teaching_subject"), // lấy dữ liệu thô hoặc rs.getString("subjects") tùy bạn logic
+                    rs.getString("grades"), // Đổ dữ liệu chuỗi lớp học tìm kiếm được vào đây
+                    rs.getString("teaching_area"), // provinceName
+                    null, // districtName
+                    null, // portraitUrl
+                    null, // degreeUrls
+                    null, // idCardUrls
+
+                    // ==========================================================
+                    // 3 THAM SỐ CUỐI ĐỂ KHỚP 100% VỚI CONSTRUCTOR TUTORPROFILE
+                    // ==========================================================
+                    rs.getDate("birth_date") != null ? rs.getDate("birth_date").toString() : null,
+                    rs.getString("school"),
+                    rs.getString("major")
             )).list();
         });
     }

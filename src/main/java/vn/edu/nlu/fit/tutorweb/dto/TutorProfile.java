@@ -1,4 +1,4 @@
-package vn.edu.nlu.fit.tutorweb.entity;
+package vn.edu.nlu.fit.tutorweb.dto;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,17 +14,21 @@ public class TutorProfile {
     private final String grades;
     private final String provinceName;
     private final String districtName;
-
-    // BỔ SUNG: 3 trường lưu tài liệu phục vụ trang chi tiết duyệt hồ sơ
     private final String portraitUrl;
     private final List<String> degreeUrls;
     private final List<String> idCardUrls;
 
-    // Cập nhật lại Constructor
+    // BỔ SUNG THÊM 3 TRƯỜNG NÀY
+    private final String birthDate;
+    private final String school;
+    private final String major;
+
+    // Cập nhật lại Constructor đầy đủ tham số
     public TutorProfile(long id, String fullName, String gender, String degreeLevel,
                         Integer minRate, Integer maxRate, String subjects, String grades,
-                        String provinceName, String districtName,
-                        String portraitUrl, List<String> degreeUrls, List<String> idCardUrls) {
+                        String provinceName, String districtName, String portraitUrl,
+                        List<String> degreeUrls, List<String> idCardUrls,
+                        String birthDate, String school, String major) { // Nhận thêm 3 tham số cuối
         this.id = id;
         this.fullName = fullName;
         this.gender = gender;
@@ -38,10 +42,14 @@ public class TutorProfile {
         this.portraitUrl = portraitUrl;
         this.degreeUrls = degreeUrls != null ? degreeUrls : new ArrayList<>();
         this.idCardUrls = idCardUrls != null ? idCardUrls : new ArrayList<>();
+
+        // Gán giá trị
+        this.birthDate = birthDate;
+        this.school = school;
+        this.major = major;
     }
 
-    // ... Giữ nguyên các hàm getter cũ của bạn ...
-
+    // --- Các hàm Getter cũ giữ nguyên ---
     public long getId() { return id; }
     public String getFullName() { return fullName; }
     public String getGender() { return gender; }
@@ -52,13 +60,16 @@ public class TutorProfile {
     public String getGrades() { return grades; }
     public String getProvinceName() { return provinceName; }
     public String getDistrictName() { return districtName; }
-
-    // BỔ SUNG: Getter cho 3 trường ảnh mới
     public String getPortraitUrl() { return portraitUrl; }
     public List<String> getDegreeUrls() { return degreeUrls; }
     public List<String> getIdCardUrls() { return idCardUrls; }
 
-    // ... Giữ nguyên các hàm helper Label cực tiện của bạn ...
+    // BỔ SUNG 3 GETTER MỚI (Bắt buộc phải viết đúng dạng CamelCase)
+    public String getBirthDate() { return birthDate; }
+    public String getSchool() { return school; }
+    public String getMajor() { return major; }
+
+    // --- Các hàm Label Helper ---
     public String getGenderLabel() {
         if (gender == null) return "Chưa cập nhật";
         return switch (gender) {

@@ -1,0 +1,60 @@
+.admin-wrapper{
+    display:flex;
+    min-height:100vh;
+    background:#f4f7fb;
+}
+
+.sidebar{
+    width:260px;
+    background:#08152f;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    padding:24px;
+}
+
+.logo-block h2{
+    margin:0;
+    font-size:32px;
+    font-weight:700;
+}
+
+.logo-block span{
+    color:#94a3b8;
+}
+
+.sidebar nav{
+    margin-top:40px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.sidebar nav a{
+    padding:14px 16px;
+    border-radius:12px;
+    color:white;
+}
+
+.sidebar nav a.active{
+    background:#17213b;
+}
+
+.dashboard-main{
+    flex:1;
+    padding:30px;
+}
+
+.dashboard-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.search-box{
+    width:350px;
+    height:42px;
+    border:none;
+    border-radius:20px;
+    padding:0 20px;
+}

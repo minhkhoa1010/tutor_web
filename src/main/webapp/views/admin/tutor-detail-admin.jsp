@@ -2,130 +2,159 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
-    <title>Chi tiết gia sư - ${tutor.fullName}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Quản trị viên - Chi tiết hồ sơ ${tutor.fullName}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/tutor-detail-admin.css">
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-dark fw-bold">Hồ Sơ Chi Tiết Gia Sư</h1>
-            <p class="text-muted mb-0">Hệ thống xét duyệt thông tin năng lực gia sư đăng ký.</p>
-        </div>
-        <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn btn-outline-secondary shadow-sm">
-            <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm border-0 text-center py-4">
-                <div class="card-body">
-                    <img src="${not empty tutor.portraitUrl ? tutor.portraitUrl : 'https://via.placeholder.com/150'}"
-                         class="rounded-circle img-thumbnail mb-3 shadow-sm"
-                         style="width: 160px; height: 160px; object-fit: cover;">
-
-                    <h4 class="fw-bold mb-1">${tutor.fullName}</h4>
-                    <p class="text-muted small mb-3">ID Gia Sư: <span class="badge bg-dark">#${tutor.id}</span></p>
-                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
-                        <i class="fa-solid fa-spinner fa-spin me-1"></i> Hồ sơ chờ duyệt
-                    </span>
-                </div>
+<div class="admin-wrapper">
+    <main class="main-content">
+        <div class="topbar">
+            <div class="topbar-brand">
+                <div class="brand-dot"></div>
+                Quản lý hệ thống gia sư
+            </div>
+            <div class="topbar-links">
+                <span class="text-muted">Hồ sơ xét duyệt trực tuyến</span>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="card-title fw-bold text-primary mb-4">
-                        <i class="fa-solid fa-address-card me-2"></i>Thông tin đăng ký giảng dạy
-                    </h5>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Giới tính</span>
-                            <span class="fw-semibold text-dark">${tutor.genderLabel}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Trình độ / Bằng cấp tối đa</span>
-                            <span class="fw-semibold text-dark">${not empty tutor.degreeLevel ? tutor.degreeLevel : 'Chưa cập nhật'}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Mức học phí mong muốn</span>
-                            <span class="fw-bold text-danger">${tutor.rateLabel}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Môn học phụ trách</span>
-                            <span class="badge bg-info text-dark p-2">${tutor.subjectsLabel}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Lớp học đăng ký dạy</span>
-                            <span class="fw-semibold text-dark">${not empty tutor.grades ? tutor.grades : 'Chưa đăng ký lớp'}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <span class="text-muted d-block small">Khu vực dạy (Quận/Huyện, Tỉnh/TP)</span>
-                            <span class="fw-semibold text-dark">
-                                <i class="fa-solid fa-map-location-dot text-muted me-1"></i>${tutor.areaLabel}
-                            </span>
-                        </div>
+        <div class="page-body">
+
+            <div class="page-title-row">
+                <div>
+                    <h1>Duyệt Hồ Sơ Chi Tiết</h1>
+                    <p>Hệ thống đánh giá và phê duyệt hồ sơ năng lực gia sư đăng ký.</p>
+                </div>
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn-primary">
+                    <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
+                </a>
+            </div>
+
+            <div class="tutor-container">
+
+                <aside class="profile-card">
+                    <div class="avatar-wrapper">
+                        <img src="${not empty tutor.portraitUrl ? tutor.portraitUrl : 'https://via.placeholder.com/150'}"
+                             class="avatar-main" alt="Portrait">
                     </div>
-                </div>
-            </div>
+                    <h2 class="tutor-name">${tutor.fullName}</h2>
+                    <span class="tutor-id-badge">ID GIA SƯ: #${tutor.id}</span>
+                    <div>
+                        <span class="status-banner">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Chờ kiểm tra
+                        </span>
+                    </div>
+                </aside>
 
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="card-title fw-bold text-success mb-4">
-                        <i class="fa-solid fa-file-invoice me-2"></i>Hồ sơ năng lực đính kèm
-                    </h5>
+                <div class="detail-content">
 
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-secondary mb-2"><i class="fa-solid fa-graduation-cap me-1"></i> Ảnh bằng cấp / Chứng chỉ:</h6>
-                        <div class="row g-2">
+                    <section class="info-section-card">
+                        <h3 class="section-card-title">
+                            <i class="fa-solid fa-user"></i> Thông tin cá nhân
+                        </h3>
+                        <div class="info-grid-2col">
+                            <div class="data-group">
+                                <span class="data-label">Giới tính</span>
+                                <span class="data-value">${tutor.genderLabel}</span>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Ngày sinh</span>
+                                <span class="data-value">${not empty tutor.birthDate ? tutor.birthDate : 'Chưa cập nhật'}</span>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Trường đào tạo</span>
+                                <span class="data-value">${not empty tutor.school ? tutor.school : 'Chưa cập nhật'}</span>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Chuyên ngành đào tạo</span>
+                                <span class="data-value">${not empty tutor.major ? tutor.major : 'Chưa cập nhật'}</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="info-section-card">
+                        <h3 class="section-card-title">
+                            <i class="fa-solid fa-graduation-cap"></i> Thông tin đăng ký lớp &amp; học phí
+                        </h3>
+                        <div class="info-grid-2col">
+                            <div class="data-group">
+                                <span class="data-label">Trình độ chuyên môn hiện tại</span>
+                                <span class="data-value">${not empty tutor.degreeLevel ? tutor.degreeLevel : 'Chưa cập nhật'}</span>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Học phí đề xuất mong muốn</span>
+                                <span class="data-value text-price">${tutor.rateLabel}</span>
+                            </div>
+                            <div class="data-group info-grid-full">
+                                <span class="data-label">Môn học phụ trách giảng dạy</span>
+                                <div style="margin-top: 6px;">
+                                    <span class="subject-badge">${tutor.subjectsLabel}</span>
+                                </div>
+                            </div>
+                            <div class="data-group info-grid-full">
+                                <span class="data-label">Các khối lớp học nhận dạy</span>
+                                <span class="data-value">${not empty tutor.grades ? tutor.grades : 'Chưa đăng ký/Chưa cập nhật'}</span>
+                            </div>
+                            <div class="data-group info-grid-full">
+                                <span class="data-label">Khu vực phân phối (Quận / Huyện)</span>
+                                <span class="data-value">
+                                    <i class="fa-solid fa-map-location-dot" style="color: #64748b; margin-right: 4px;"></i>
+                                    ${tutor.areaLabel}
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="info-section-card">
+                        <h3 class="section-card-title">
+                            <i class="fa-solid fa-file-shield"></i> Tài liệu &amp; Giấy tờ pháp lý đối chiếu
+                        </h3>
+
+                        <div class="doc-sub-title"><i class="fa-solid fa-certificate"></i> Bằng cấp / Chứng chỉ nghiệp vụ:</div>
+                        <div class="doc-gallery">
                             <c:forEach var="url" items="${tutor.degreeUrls}">
-                                <div class="col-6 col-sm-4">
+                                <div class="doc-thumb-wrapper">
                                     <a href="${url}" target="_blank">
-                                        <img src="${url}" class="img-fluid rounded img-thumbnail" style="height: 120px; width:100%; object-fit: cover;" title="Click để phóng to ảnh">
+                                        <img src="${url}" class="doc-img" title="Nhấp để xem ảnh gốc">
                                     </a>
                                 </div>
                             </c:forEach>
                             <c:if test="${empty tutor.degreeUrls}">
-                                <div class="text-muted small ps-2 italic">Không có tài liệu bằng cấp đính kèm.</div>
+                                <div class="empty-doc-text">Hệ thống chưa ghi nhận tệp đính kèm bằng cấp nào từ tài khoản này.</div>
                             </c:if>
                         </div>
-                    </div>
 
-                    <div>
-                        <h6 class="fw-bold text-secondary mb-2"><i class="fa-solid fa-id-card me-1"></i> Ảnh Căn cước công dân (Mặt trước & Mặt sau):</h6>
-                        <div class="row g-2">
+                        <div class="doc-sub-title"><i class="fa-solid fa-id-card"></i> Ảnh Căn cước công dân xác thực danh tính:</div>
+                        <div class="doc-gallery">
                             <c:forEach var="url" items="${tutor.idCardUrls}">
-                                <div class="col-6 col-sm-4">
+                                <div class="doc-thumb-wrapper">
                                     <a href="${url}" target="_blank">
-                                        <img src="${url}" class="img-fluid rounded img-thumbnail" style="height: 120px; width:100%; object-fit: cover;">
+                                        <img src="${url}" class="doc-img" title="Nhấp để xem ảnh gốc">
                                     </a>
                                 </div>
                             </c:forEach>
                             <c:if test="${empty tutor.idCardUrls}">
-                                <div class="text-muted small ps-2 italic">Không có ảnh căn cước đối chiếu.</div>
+                                <div class="empty-doc-text">Hệ thống chưa ghi nhận dữ liệu ảnh căn cước công dân.</div>
                             </c:if>
                         </div>
+                    </section>
+
+                    <div class="action-row">
+                        <a href="${pageContext.request.contextPath}/admin/approve-tutor?id=${tutor.id}" class="btn-action btn-approve">
+                            <i class="fa-solid fa-circle-check"></i> Xác nhận phê duyệt hồ sơ
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/reject-tutor?id=${tutor.id}" class="btn-action btn-reject">
+                            <i class="fa-solid fa-circle-xmark"></i> Từ chối yêu cầu đăng ký
+                        </a>
                     </div>
+
                 </div>
             </div>
 
-            <div class="d-flex gap-3 mb-5">
-                <a href="${pageContext.request.contextPath}/admin/approve-tutor?id=${tutor.id}"
-                   class="btn btn-success btn-lg flex-fill py-2.5 fw-bold shadow-sm">
-                    <i class="fa-solid fa-circle-check me-1"></i> Phê Duyệt Hồ Sơ
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/reject-tutor?id=${tutor.id}"
-                   class="btn btn-danger btn-lg flex-fill py-2.5 fw-bold shadow-sm">
-                    <i class="fa-solid fa-circle-xmark me-1"></i> Từ Chối Yêu Cầu
-                </a>
-            </div>
-
         </div>
-    </div>
+    </main>
 </div>
 
 </body>

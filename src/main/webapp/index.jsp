@@ -1,10 +1,49 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Trang chu - Gia Su Ba Dao" />
-    <jsp:param name="pageCss" value="/assets/css/home.css" />
-</jsp:include>
-<jsp:include page="/views/common/navbar.jsp" />
+<%-- Đổi URI cũ sang chuẩn Jakarta để ép JSTL hoạt động đúng --%>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
+<jsp:include page="/views/common/header.jsp">
+    <jsp:param name="pageTitle" value="Trang chủ - Gia Sư Bá Đạo"/>
+    <jsp:param name="pageCss" value="/assets/css/home.css"/>
+</jsp:include>
+
+<jsp:include page="/views/common/navbar.jsp"/>
+
+<%-- ĐIỀU KIỆN LINH HOẠT: Kiểm tra vai trò TUTOR và trạng thái hồ sơ trong session --%>
+<c:if test="${not empty sessionScope.clientUser}">
+
+    <%-- TRƯỜNG HỢP 1: Hồ sơ đang chờ xét duyệt (PENDING) --%>
+    <c:if test="${sessionScope.tutorStatus eq 'PENDING'}">
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b;
+                    padding: 14px 24px; margin: 0; color: #92400e; font-size: 14px;
+                    display: flex; align-items: center; gap: 8px;">
+            <span>⏳</span>
+            <div>
+                Hồ sơ gia sư của bạn đang <strong>chờ Admin xét duyệt</strong>.
+                Thường mất 24 giờ. Hệ thống sẽ mở quyền truy cập Dashboard ngay khi được phê duyệt.
+            </div>
+        </div>
+        <%-- Xóa trạng thái khỏi session sau khi hiển thị một lần --%>
+        <c:remove var="tutorStatus" scope="session"/>
+    </c:if>
+
+    <%-- TRƯỜNG HỢP 2: Hồ sơ bị từ chối xét duyệt (REJECTED) --%>
+    <c:if test="${sessionScope.tutorStatus eq 'REJECTED'}">
+        <div style="background: #fee2e2; border-left: 4px solid #dc2626;
+                    padding: 14px 24px; margin: 0; color: #991b1b; font-size: 14px;
+                    display: flex; align-items: center; gap: 8px;">
+            <span>❌</span>
+            <div>
+                Hồ sơ ứng tuyển gia sư của bạn đã <strong>bị từ chối</strong> do chưa đạt một số tiêu chí xét duyệt.
+
+                Vui lòng <a href="${pageContext.request.contextPath}/tutor/resubmit-profile" style="color: #b91c1c; font-weight: bold; text-decoration: underline;">nhấp vào đây để cập nhật lại hồ sơ năng lực</a>.
+            </div>
+        </div>
+        <%-- Xóa trạng thái khỏi session sau khi hiển thị một lần --%>
+        <c:remove var="tutorStatus" scope="session"/>
+    </c:if>
+
+</c:if>
 <main class="page-main">
     <div class="container">
         <section class="hero hero-modern">
@@ -144,7 +183,7 @@
                     <h2 class="section-title">Gia sư tiêu biểu</h2>
                     <div class="section-sub">Những người dẫn dắt tận tâm được cộng đồng đánh giá cao nhất.</div>
                 </div>
-                <a class="section-link" href="<%= request.getContextPath() %>/views/tutor/list.jsp">Xem tất cả</a>
+                <a class="section-link" href="${pageContext.request.contextPath}/tutors">Xem tất cả</a>
             </div>
             <div class="tutor-grid">
                 <article class="tutor-card">
@@ -160,7 +199,7 @@
                     </div>
                     <div class="tutor-actions">
                         <span class="price">450k/buổi</span>
-                        <a class="btn btn-outline" href="<%= request.getContextPath() %>/views/tutor/detail.jsp">Hồ sơ chi tiết</a>
+                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
                     </div>
                 </article>
                 <article class="tutor-card">
@@ -176,7 +215,7 @@
                     </div>
                     <div class="tutor-actions">
                         <span class="price">600k/buổi</span>
-                        <a class="btn btn-outline" href="<%= request.getContextPath() %>/views/tutor/detail.jsp">Hồ sơ chi tiết</a>
+                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
                     </div>
                 </article>
                 <article class="tutor-card">
@@ -192,7 +231,7 @@
                     </div>
                     <div class="tutor-actions">
                         <span class="price">300k/buổi</span>
-                        <a class="btn btn-outline" href="<%= request.getContextPath() %>/views/tutor/detail.jsp">Hồ sơ chi tiết</a>
+                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
                     </div>
                 </article>
                 <article class="tutor-card">
@@ -208,7 +247,7 @@
                     </div>
                     <div class="tutor-actions">
                         <span class="price">400k/buổi</span>
-                        <a class="btn btn-outline" href="<%= request.getContextPath() %>/views/tutor/detail.jsp">Hồ sơ chi tiết</a>
+                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
                     </div>
                 </article>
             </div>

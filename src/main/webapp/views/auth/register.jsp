@@ -13,20 +13,49 @@
             <div class="auth-grid">
                 <div class="card">
                     <div class="card-header">Học viên &amp; Phụ huynh</div>
-                    <form method="post" action="<%= request.getContextPath() %>/auth">
+                    <form method="post"
+                          action="<%=request.getContextPath()%>/register">
+
                         <div class="form-group">
-                            <label class="label">Email</label>
-                            <input class="input-field" type="email" name="parentEmail" placeholder="example@email.com" required>
+                            <label>Họ tên</label>
+                            <input class="input-field"  type="text"
+                                   name="fullname"
+                                   required>
                         </div>
+
                         <div class="form-group">
-                            <label class="label">Số điện thoại</label>
-                            <input class="input-field" type="text" name="parentPhone" placeholder="09xx xxx xxx" required>
+                            <label>Email</label>
+                            <input class="input-field" type="email"
+                                   name="email"
+                                   required>
                         </div>
+
                         <div class="form-group">
-                            <label class="label">Mật khẩu</label>
-                            <input class="input-field" type="password" name="parentPassword" placeholder="Tối thiểu 8 ký tự" required>
+                            <label>Số điện thoại</label>
+                            <input class="input-field" type="text"
+                                   name="phone"
+                                   required>
                         </div>
-                        <button class="btn btn-primary" type="submit">Đăng ký học viên</button>
+
+                        <div class="form-group">
+                            <label>Mật khẩu</label>
+                            <input class="input-field" type="password"
+                                   name="password"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu</label>
+                            <input class="input-field" type="password"
+                                   name="confirmPassword"
+                                   required>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                type="submit">
+                            Đăng ký học viên
+                        </button>
+
                     </form>
                 </div>
                 <div class="card">
@@ -41,20 +70,14 @@
                 <h2 class="section-title">Đăng ký gia sư</h2>
                 <div class="section-sub">Vui lòng điền đầy đủ thông tin để trung tâm duyệt hồ sơ.</div>
             </div>
-            <form class="register-form" method="post" action="<%= request.getContextPath() %>/auth" enctype="multipart/form-data">
+            <form class="register-form"
+                  method="post"
+                  action="<%= request.getContextPath() %>/register-tutor"
+                  enctype="multipart/form-data">
                 <div class="form-card">
                     <div class="form-section">
                         <h3 class="form-section-title">Thông tin cá nhân</h3>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label class="label">Tỉnh/Thành dạy <span class="req">*</span></label>
-                                <select class="select-field" name="teachingCity" required>
-                                    <option>Hồ Chí Minh</option>
-                                    <option>Hà Nội</option>
-                                    <option>Đà Nẵng</option>
-                                    <option>Cần Thơ</option>
-                                </select>
-                            </div>
                             <div class="form-group">
                                 <label class="label">Họ tên <span class="req">*</span></label>
                                 <input class="input-field" type="text" name="fullName" placeholder="Nguyễn Văn Thành" required>
@@ -143,40 +166,12 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="label">Nguyên quán <span class="req">*</span></label>
-                                <select class="select-field" name="hometown" required>
-                                    <option value="">Tỉnh/thành trên CCCD</option>
-                                    <option>Hồ Chí Minh</option>
-                                    <option>Hà Nội</option>
-                                    <option>Đà Nẵng</option>
-                                    <option>Cần Thơ</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="label">Giọng nói</label>
-                                <select class="select-field" name="accent">
-                                    <option value="">--Chọn giọng nói--</option>
-                                    <option>Miền Bắc</option>
-                                    <option>Miền Trung</option>
-                                    <option>Miền Nam</option>
-                                </select>
-                            </div>
-                            <div class="form-group form-field-full">
-                                <label class="label">Địa chỉ hiện tại <span class="req">*</span></label>
-                                <input class="input-field" type="text" name="currentAddress" placeholder="Số nhà, đường, phường/xã, quận/huyện" required>
-                            </div>
-                            <div class="form-group">
                                 <label class="label">Số CCCD <span class="req">*</span></label>
                                 <input class="input-field" type="text" name="citizenId" placeholder="012345678901" required>
                             </div>
                             <div class="form-group">
                                 <label class="label">Email <span class="req">*</span></label>
                                 <input class="input-field" type="email" name="email" placeholder="example@email.com" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="label">Facebook</label>
-                                <input class="input-field" type="url" name="facebookUrl" placeholder="https://facebook.com/...">
-                                <div class="hint">Cách lấy link FaceBook (bấm để xem)</div>
                             </div>
                             <div class="form-group">
                                 <label class="label">Điện thoại <span class="req">*</span></label>
@@ -193,6 +188,14 @@
                             <div class="form-note form-field-full">
                                 Gia sư tạo mật khẩu và lưu lại để sử dụng sau này (mật khẩu dùng để báo tình trạng lớp, in giấy giới thiệu, chỉnh sửa hồ sơ gia sư).
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Mức học phí mong muốn (VNĐ/Giờ hoặc VNĐ/Buổi)</h3>
+                        <div class="form-group">
+
+                        <label class="label">VNĐ <span class="req">*</span></label>
+                            <input type="number" name="hourlyRate" class="input-field" placeholder="Ví dụ: 200000" required min="0">
                         </div>
                     </div>
                     <div class="form-section">
@@ -228,47 +231,6 @@
                             <div class="form-group">
                                 <label class="label">Ngành học <span class="req">*</span></label>
                                 <input class="input-field" type="text" name="major" placeholder="Sư Phạm Vật Lý" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="label">Niên khóa <span class="req">*</span></label>
-                                <div class="split-fields">
-                                    <select class="select-field" name="startYear" required>
-                                        <option value="">Năm nhập học</option>
-                                        <option>2015</option>
-                                        <option>2016</option>
-                                        <option>2017</option>
-                                        <option>2018</option>
-                                        <option>2019</option>
-                                        <option>2020</option>
-                                        <option>2021</option>
-                                        <option>2022</option>
-                                        <option>2023</option>
-                                        <option>2024</option>
-                                    </select>
-                                    <select class="select-field" name="endYear" required>
-                                        <option value="">Năm tốt nghiệp</option>
-                                        <option>2018</option>
-                                        <option>2019</option>
-                                        <option>2020</option>
-                                        <option>2021</option>
-                                        <option>2022</option>
-                                        <option>2023</option>
-                                        <option>2024</option>
-                                        <option>2025</option>
-                                        <option>2026</option>
-                                    </select>
-                                </div>
-                                <div class="hint">Ví dụ: Niên khóa 2015 - 2019.</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="label">Hiện là <span class="req">*</span></label>
-                                <select class="select-field" name="currentStatus" required>
-                                    <option>--Chọn tình trạng--</option>
-                                    <option>Sinh viên</option>
-                                    <option>Giáo viên</option>
-                                    <option>Đã tốt nghiệp</option>
-                                    <option>Khác</option>
-                                </select>
                             </div>
                             <div class="form-group form-field-full">
                                 <label class="label">Trình độ</label>
@@ -317,28 +279,27 @@
                                 </div>
                             </div>
                             <div class="form-group form-field-full">
-                                <label class="label">Lớp dạy <span class="req">*</span></label>
+
                                 <div class="chip-grid">
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp Lá"> Lớp Lá</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 1"> Lớp 1</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 2"> Lớp 2</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 3"> Lớp 3</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 4"> Lớp 4</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 5"> Lớp 5</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 6"> Lớp 6</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 7"> Lớp 7</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 8"> Lớp 8</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 9"> Lớp 9</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 10"> Lớp 10</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 11"> Lớp 11</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Lớp 12"> Lớp 12</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Ôn Thi Đại Học"> Ôn Thi Đại Học</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Dạy Song Ngữ"> Dạy Song Ngữ</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Dạy Bằng Tiếng Anh"> Dạy Bằng Tiếng Anh</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Ôn Trần Đại Nghĩa"> Ôn Trần Đại Nghĩa</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Ôn Thi Trường Chuyên"> Ôn Thi Trường Chuyên</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Dạy Trẻ Tự Kỷ"> Dạy Trẻ Tự Kỷ</label>
-                                    <label class="check-card"><input type="checkbox" name="grades" value="Các Lớp Khác"> Các Lớp Khác</label>
+                                    <div class="form-group form-field-full">
+                                        <label class="label">Lớp dạy <span class="req">*</span></label>
+                                        <div class="chip-grid">
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp Lá"> Lớp Lá</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 1"> Lớp 1</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 2"> Lớp 2</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 3"> Lớp 3</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 4"> Lớp 4</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 5"> Lớp 5</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 6"> Lớp 6</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 7"> Lớp 7</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 8"> Lớp 8</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 9"> Lớp 9</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 10"> Lớp 10</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 11"> Lớp 11</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Lớp 12"> Lớp 12</label>
+                                            <label class="check-card"><input type="checkbox" name="grades" value="Đại Học"> Đại Học</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group form-field-full">
@@ -368,32 +329,6 @@
                                     <label class="check-card"><input type="checkbox" name="areas" value="Củ Chi"> Củ Chi</label>
                                     <label class="check-card"><input type="checkbox" name="areas" value="Hóc Môn"> Hóc Môn</label>
                                     <label class="check-card"><input type="checkbox" name="areas" value="Nhà Bè"> Nhà Bè</label>
-                                </div>
-                            </div>
-                            <div class="form-group form-field-full">
-                                <label class="label">Thời gian dạy <span class="req">*</span></label>
-                                <div class="chip-grid">
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 2"> Sáng Thứ 2</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 3"> Sáng Thứ 3</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 4"> Sáng Thứ 4</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 5"> Sáng Thứ 5</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 6"> Sáng Thứ 6</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng Thứ 7"> Sáng Thứ 7</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Sáng CN"> Sáng CN</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 2"> Chiều Thứ 2</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 3"> Chiều Thứ 3</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 4"> Chiều Thứ 4</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 5"> Chiều Thứ 5</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 6"> Chiều Thứ 6</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều Thứ 7"> Chiều Thứ 7</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Chiều CN"> Chiều CN</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 2"> Tối Thứ 2</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 3"> Tối Thứ 3</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 4"> Tối Thứ 4</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 5"> Tối Thứ 5</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 6"> Tối Thứ 6</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối Thứ 7"> Tối Thứ 7</label>
-                                    <label class="check-card"><input type="checkbox" name="schedule" value="Tối CN"> Tối CN</label>
                                 </div>
                             </div>
                         </div>

@@ -38,7 +38,13 @@ public class SocialCallbackServlet extends HttpServlet {
                 socialId = googleData.get("id").getAsString();
                 email = googleData.has("email") ? googleData.get("email").getAsString() : socialId + "@google.com";
                 fullname = googleData.has("name") ? googleData.get("name").getAsString() : "Google User";
-                if (googleData.has("picture")) avatarUrl = googleData.get("picture").getAsString();
+                if (googleData.has("picture") && !googleData.get("picture").isJsonNull()) {
+                    // Sử dụng getAsString() chuẩn của Gson để bóc tách chuỗi URL thô không chứa dấu " "
+                    avatarUrl = googleData.get("picture").getAsString();
+                } else if (googleData.has("avatar_url") && !googleData.get("avatar_url").isJsonNull()) {
+                    // Dự phòng trường hợp Scope cấu hình trả về key avatar_url thay vì picture
+                    avatarUrl = googleData.get("avatar_url").getAsString();
+                }
 
             } else if (provider.equalsIgnoreCase("facebook")) {
                 JsonObject fbData = SocialAuthHelper.getFacebookUserInfo(code);

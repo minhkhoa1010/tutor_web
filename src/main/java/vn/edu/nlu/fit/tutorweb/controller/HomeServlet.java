@@ -10,8 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import vn.edu.nlu.fit.tutorweb.dao.AdminDAO;
 import vn.edu.nlu.fit.tutorweb.dao.TutorDAO;
 import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
@@ -35,7 +37,7 @@ public class HomeServlet extends HttpServlet {
 
         // Chỉ kiểm tra và bật thông báo khi ĐÃ ĐĂNG NHẬP và PHẢI LÀ TUTOR
         if (user != null && user.hasRole("TUTOR")) {
-            String status = adminDAO.getVerificationStatus(user.getId());
+            String status = AdminDAO.getVerificationStatus(user.getId());
             pendingApproval = "PENDING".equalsIgnoreCase(status);
         }
 
@@ -46,10 +48,14 @@ public class HomeServlet extends HttpServlet {
             session.removeAttribute("pendingApproval");
         }
 
+        // ĐỘNG HÓA: Lấy danh sách 4 gia sư tiêu biểu từ cơ sở dữ liệu
+        List<TutorSearchResult> featuredTutors = tutorDAO.getFeaturedTutors(4);
+        req.setAttribute("featuredTutors", featuredTutors);
+
         req.setAttribute("pageCss", "/assets/css/home.css");
         req.setAttribute("pageTitle", "Trang chủ - Gia Sư Bá Đạo");
 
-        System.out.println("HOME SERVLET RUNNING - pendingApproval = " + pendingApproval);
+        System.out.println("HOME SERVLET RUNNING - Featured Tutors Loaded: " + (featuredTutors != null ? featuredTutors.size() : 0));
         req.getRequestDispatcher("/index.jsp").forward(req, resp);
     }
 }

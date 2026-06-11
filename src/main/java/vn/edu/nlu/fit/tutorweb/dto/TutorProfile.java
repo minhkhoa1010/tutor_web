@@ -23,6 +23,7 @@ public class TutorProfile {
     private final String school;
     private final String major;
 
+    private String availableSchedules;
     // Cập nhật lại Constructor đầy đủ tham số
     public TutorProfile(long id, String fullName, String gender, String degreeLevel,
                         Integer minRate, Integer maxRate, String subjects, String grades,
@@ -101,5 +102,12 @@ public class TutorProfile {
     public String getSubjectsLabel() {
         if (subjects == null || subjects.isBlank()) return "Chưa cập nhật môn";
         return subjects;
+    }
+    public String getAvailableSchedules() {
+        return availableSchedules;
+    }
+
+    public void setAvailableSchedules(String availableSchedules) {
+        this.availableSchedules = availableSchedules;
     }
 }

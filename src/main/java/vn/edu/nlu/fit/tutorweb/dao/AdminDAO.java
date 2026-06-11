@@ -163,34 +163,32 @@ public class AdminDAO {
                 }
             }
 
-            // 4. Khởi tạo đối tượng TutorProfile khớp 100% với Constructor của bạn
-            return new TutorProfile(
+            // ... (Giữ nguyên toàn bộ phần logic SQL và phân loại ảnh ở trên của bạn) ...
+
+            // 4. Khởi tạo đối tượng bằng cách gán vào một biến tạm profile
+            TutorProfile profile = new TutorProfile(
                     ((Number) data.get("id")).longValue(),
                     (String) data.get("fullname"),
                     (String) data.get("gender"),
                     (String) data.get("qualification"),
-
-                    // minRate (hourly_rate từ DB)
                     data.get("hourly_rate") != null ? ((Number) data.get("hourly_rate")).intValue() : null,
-                    null, // maxRate
-
+                    null,
                     (String) data.get("teaching_subject"),
-
-                    // ĐÃ CẬP NHẬT: Đổ chuỗi lớp học đăng ký từ database thay vì để null như cũ
                     (String) data.get("teaching_grade"),
-
-                    (String) data.get("teaching_area"), // Tạm gán vào provinceName để AreaLabel đọc
-                    null, // districtName
-
+                    (String) data.get("teaching_area"),
+                    null,
                     portraitUrl,
                     degreeUrls,
                     idCardUrls,
-
-                    // 3 trường bổ sung ở cuối Constructor
                     data.get("birth_date") != null ? data.get("birth_date").toString() : null,
                     (String) data.get("school"),
                     (String) data.get("major")
             );
+
+            // 🌟 ĐÃ THÊM: Ép dữ liệu lịch rảnh thông qua hàm Setter trước khi trả về
+            profile.setAvailableSchedules((String) data.get("available_schedules"));
+
+            return profile;
         });
     }
 

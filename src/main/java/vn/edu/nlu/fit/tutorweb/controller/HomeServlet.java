@@ -38,7 +38,8 @@ public class HomeServlet extends HttpServlet {
         // Chỉ kiểm tra và bật thông báo khi ĐÃ ĐĂNG NHẬP và PHẢI LÀ TUTOR
         if (user != null && user.hasRole("TUTOR")) {
             String status = AdminDAO.getVerificationStatus(user.getId());
-            pendingApproval = "PENDING".equalsIgnoreCase(status);
+            // Đẩy thẳng trạng thái vào request để JSP dùng
+            req.setAttribute("tutorStatus", status);
         }
 
         // Nếu đúng là đang chờ duyệt thì lưu vào session, ngược lại xóa thẳng tay khỏi session

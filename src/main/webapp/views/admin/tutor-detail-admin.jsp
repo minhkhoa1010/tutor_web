@@ -78,6 +78,7 @@
                         <h3 class="section-card-title">
                             <i class="fa-solid fa-graduation-cap"></i> Thông tin đăng ký lớp &amp; học phí
                         </h3>
+
                         <div class="info-grid-2col">
                             <div class="data-group">
                                 <span class="data-label">Trình độ chuyên môn hiện tại</span>
@@ -107,6 +108,26 @@
                         </div>
                     </section>
 
+                    <section class="info-section-card">
+                        <h3 class="section-card-title">
+                            <i class="fa-solid fa-calendar-days"></i> Lịch biểu giảng dạy đăng ký (Thời gian rảnh)
+                        </h3>
+                        <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                            <c:choose>
+                                <%-- FIX LỖI: Đổi từ kiểm tra tutor.availableSchedules sang danh sách scheduleList vừa gửi sang --%>
+                                <c:when test="${not empty scheduleList}">
+                                    <c:forEach var="schedule" items="${scheduleList}">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                        <i class="fa-solid fa-clock" style="font-size: 11px;"></i> ${schedule}
+                    </span>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <span style="color: #94a3b8; font-style: italic; font-size: 13px;">Gia sư này chưa đăng ký khung thời gian biểu rảnh rỗi.</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </section>
                     <section class="info-section-card">
                         <h3 class="section-card-title">
                             <i class="fa-solid fa-file-shield"></i> Tài liệu &amp; Giấy tờ pháp lý đối chiếu
@@ -143,10 +164,10 @@
 
                     <div class="action-row">
                         <a href="${pageContext.request.contextPath}/admin/approve-tutor?id=${tutor.id}" class="btn-action btn-approve">
-                            <i class="fa-solid fa-circle-check"></i> Xác nhận phê duyệt hồ sơ
+                            <i class="fa-solid fa-circle-check"></i> Phê duyệt hồ sơ
                         </a>
                         <a href="${pageContext.request.contextPath}/admin/reject-tutor?id=${tutor.id}" class="btn-action btn-reject">
-                            <i class="fa-solid fa-circle-xmark"></i> Từ chối yêu cầu đăng ký
+                            <i class="fa-solid fa-circle-xmark"></i> Từ chối hồ sơ
                         </a>
                     </div>
 

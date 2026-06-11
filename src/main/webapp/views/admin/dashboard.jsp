@@ -48,9 +48,11 @@
 
         <div class="sidebar-bottom">
             <div class="sidebar-user">
-                <img src="https://i.pravatar.cc/100?img=12" alt="Admin">
+                <img src="${not empty sessionScope.clientUser.avatarUrl ? sessionScope.clientUser.avatarUrl : 'https://ui-avatars.com/api/?name=Admin+User&background=1a2f5a&color=fff'}"
+                     alt="Admin"
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name='+encodeURIComponent('${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Admin User'}')+'&background=random';">
                 <div>
-                    <strong>Admin User</strong>
+                    <strong><c:out value="${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Admin User'}"/></strong>
                     <span>SUPER ADMINISTRATOR</span>
                 </div>
             </div>
@@ -83,7 +85,10 @@
             <div class="topbar-actions">
                 <button class="icon-btn notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-dot"></span></button>
                 <button class="icon-btn"><span class="material-symbols-outlined">mail</span></button>
-                <img class="avatar-sm" src="https://i.pravatar.cc/100?img=12" alt="Admin">
+                <img class="avatar-sm"
+                     src="${not empty sessionScope.clientUser.avatarUrl ? sessionScope.clientUser.avatarUrl : 'https://ui-avatars.com/api/?name=Admin+User&background=1a2f5a&color=fff'}"
+                     alt="Admin"
+                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name='+encodeURIComponent('${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Admin User'}')+'&background=random';">
             </div>
         </header>
 
@@ -94,7 +99,7 @@
                     <h1>Tổng quan hệ thống</h1>
                     <p>Chỉ số hiệu suất thời gian thực và tăng trưởng người dùng.</p>
                 </div>
-                <a href="${pageContext.request.contextPath}/admin/tutors/new" class="btn-primary">
+                <a href="${pageContext.request.contextPath}/admin/tutors/new" class="btn-primary" style="text-decoration:none;">
                     + Thêm Gia Sư Mới
                 </a>
             </div>
@@ -103,27 +108,50 @@
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon blue-icon material-symbols-outlined">school</div>
-                        <span class="kpi-badge green-badge">+12%</span>
+                        <c:choose>
+                            <%-- Kiểm tra chuỗi, nếu KHÔNG bắt đầu bằng dấu trừ '-' thì là số dương hoặc bằng 0 --%>
+                            <c:when test="${not empty tutorGrowth && !tutorGrowth.startsWith('-')}">
+                                <span class="kpi-badge green-badge">+${tutorGrowth}%</span>
+                            </c:when>
+                            <%-- Ngược lại, nếu chứa dấu trừ thì là số âm -> Hiện màu đỏ --%>
+                            <c:otherwise>
+                                <span class="kpi-badge red-badge">${tutorGrowth}%</span>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                     <div class="kpi-label">Tổng gia sư</div>
                     <div class="kpi-value"><c:out value="${not empty totalTutors ? totalTutors : '0'}" /></div>
                 </div>
+
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon green-icon material-symbols-outlined">group</div>
-                        <span class="kpi-badge green-badge">+8.4%</span>
+                        <c:choose>
+                            <%-- Kiểm tra chuỗi tương tự cho phần học viên --%>
+                            <c:when test="${not empty studentGrowth && !studentGrowth.startsWith('-')}">
+                                <span class="kpi-badge green-badge">+${studentGrowth}%</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="kpi-badge red-badge">${studentGrowth}%</span>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                     <div class="kpi-label">Tổng học viên</div>
                     <div class="kpi-value"><c:out value="${not empty totalStudents ? totalStudents : '0'}" /></div>
                 </div>
+
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon orange-icon material-symbols-outlined">payments</div>
                         <span class="kpi-badge red-badge">-2.1%</span>
                     </div>
                     <div class="kpi-label">Doanh thu tháng</div>
-                    <div class="kpi-value">$<fmt:formatNumber value="${not empty monthlyRevenue ? monthlyRevenue : 0}" type="number"/></div>
+                    <div class="kpi-value">
+                        <%-- Định dạng số sang tiền tệ Việt Nam (Ví dụ: 15,000,000 đ) --%>
+                        <fmt:formatNumber value="${not empty monthlyRevenue ? monthlyRevenue : 0}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                    </div>
                 </div>
+
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon purple-icon material-symbols-outlined">menu_book</div>
@@ -198,21 +226,31 @@
                             <c:forEach items="${pendingTutors}" var="t">
                                 <tr>
                                     <td>
-                                        <img class="table-avatar"
-                                             src="${not empty t.avatarUrl ? t.avatarUrl : 'https://i.pravatar.cc/100?img=1'}"
-                                             alt="Avatar">
+                                        <c:choose>
+                                            <c:when test="${not empty t.avatarUrl && (t.avatarUrl.startsWith('http://') || t.avatarUrl.startsWith('https://'))}">
+                                                <img class="table-avatar" src="${t.avatarUrl}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${t.fullName}&background=random';">
+                                            </c:when>
+                                            <c:when test="${not empty t.avatarUrl}">
+                                                <img class="table-avatar" src="${pageContext.request.contextPath}${t.avatarUrl}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${t.fullName}&background=random';">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img class="table-avatar" src="https://ui-avatars.com/api/?name=${t.fullName}&background=random" alt="Avatar" style="width:40px; height:40px; border-radius:50%;">
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
-                                        <%-- 🛠️ Sửa toàn bộ thành CamelCase chuẩn theo DTO properties --%>
                                     <td class="name-cell"><strong><c:out value="${t.fullName}"/></strong></td>
                                     <td><span class="subject-tag"><c:out value="${t.teachingSubject}"/></span></td>
                                     <td class="date-cell"><c:out value="${t.appliedDate}"/></td>
                                     <td class="action-cell">
-                                        <a href="${pageContext.request.contextPath}/admin/tutor-detail?id=${t.tutorId}"
-                                           class="btn-view">👁 Xem hồ sơ</a>
-                                        <a href="${pageContext.request.contextPath}/admin/approve-tutor?id=${t.tutorId}"
-                                           class="btn-approve">Duyệt</a>
-                                        <a href="${pageContext.request.contextPath}/admin/reject-tutor?id=${t.tutorId}"
-                                           class="btn-reject">Từ chối</a>
+                                        <a href="${pageContext.request.contextPath}/admin/tutor-detail?id=${t.tutorId}" class="btn-action btn-view" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #f1f5f9; color: #1a2f5a; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span> Chi tiết
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/admin/approve-tutor?id=${t.tutorId}" class="btn-action btn-approve" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #ecfdf5; color: #10b981; border-radius: 6px; font-size: 13px; font-weight: 500; margin-left: 6px;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">check</span> Duyệt
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/admin/reject-tutor?id=${t.tutorId}" class="btn-action btn-reject" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 13px; font-weight: 500; margin-left: 6px;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">close</span> Từ chối
+                                        </a>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -254,7 +292,7 @@
                                         </c:forEach>
                                     </td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/admin/lock-user?id=${r.tutorId}" class="btn-lock">Khóa tài khoản</a>
+                                        <a href="${pageContext.request.contextPath}/admin/lock-user?id=${r.tutorId}" class="btn-lock" style="text-decoration:none;">Khóa tài khoản</a>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -266,12 +304,12 @@
                                     <span class="violation-tag">BỎ TIẾT HỌC</span>
                                     <span class="violation-tag">NHIỀU BÁO CÁO</span>
                                 </td>
-                                <td><a href="#" class="btn-lock">Khóa tài khoản</a></td>
+                                <td><a href="#" class="btn-lock" style="text-decoration:none;">Khóa tài khoản</a></td>
                             </tr>
                             <tr>
                                 <td class="name-cell"><strong>Phạm Minh Đức</strong></td>
                                 <td><span class="violation-tag">SPAM</span></td>
-                                <td><a href="#" class="btn-lock">Khóa tài khoản</a></td>
+                                <td><a href="#" class="btn-lock" style="text-decoration:none;">Khóa tài khoản</a></td>
                             </tr>
                         </c:otherwise>
                     </c:choose>
@@ -280,7 +318,7 @@
             </div>
 
             <footer class="page-footer">
-                © 2024 Gia Sư Bá Đạo VN • Giao diện quản trị hệ thống
+                © 2026 Gia Sư Bá Đạo VN • Giao diện quản trị hệ thống
             </footer>
 
         </div>
@@ -289,12 +327,10 @@
 
 <script>
     window.addEventListener('DOMContentLoaded', function() {
-        // 🛠️ Ép kiểu an toàn tuyệt đối từ EL sang JS, tránh lỗi cú pháp làm đứng biểu đồ
         const growthData    = ${not empty chartJson ? chartJson : '[]'};
         const totalTutors   = Number('${totalTutors}') || 0;
         const totalStudents = Number('${totalStudents}') || 0;
 
-        // Kiểm tra phần tử canvas trước khi vẽ đồ thị
         const canvasBar = document.getElementById('userGrowthChart');
         if (canvasBar) {
             const barCtx = canvasBar.getContext('2d');
@@ -326,10 +362,11 @@
             });
         }
 
-        // Tính toán Donut chart an toàn
+        // Tính toán phân bổ biểu đồ tròn
         const totalAll   = totalTutors + totalStudents;
+        // Nếu database chưa có dữ liệu, dùng giá trị mặc định (85-15) để biểu đồ hiển thị đẹp mắt, tránh chia cho 0
         const studentPct = totalAll > 0 ? Math.round(totalStudents / totalAll * 100) : 85;
-        const tutorPct   = totalAll > 0 ? Math.round(totalTutors   / totalAll * 100) : 15;
+        const tutorPct   = totalAll > 0 ? Math.round(totalTutors / totalAll * 100) : 15;
 
         const studentLabel = document.querySelector('.dist-item:nth-child(1) .dist-pct');
         const tutorLabel   = document.querySelector('.dist-item:nth-child(2) .dist-pct');

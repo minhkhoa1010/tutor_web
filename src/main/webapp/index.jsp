@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%-- Đổi URI cũ sang chuẩn Jakarta để ép JSTL hoạt động đúng --%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <jsp:include page="/views/common/header.jsp">
     <jsp:param name="pageTitle" value="Trang chủ - Gia Sư Bá Đạo"/>
     <jsp:param name="pageCss" value="/assets/css/home.css"/>
@@ -186,70 +186,40 @@
                 <a class="section-link" href="${pageContext.request.contextPath}/tutors">Xem tất cả</a>
             </div>
             <div class="tutor-grid">
-                <article class="tutor-card">
-                    <div class="tutor-top">
-                        <div class="tutor-avatar avatar-1"></div>
-                        <span class="rating-pill">4.9</span>
-                    </div>
-                    <h3>Nguyễn Thùy Linh</h3>
-                    <div class="meta">Tiếng Anh • ĐH Ngoại ngữ</div>
-                    <div class="tutor-tags">
-                        <span class="tag-pill">IELTS 8.5</span>
-                        <span class="tag-pill">Q.1</span>
-                    </div>
-                    <div class="tutor-actions">
-                        <span class="price">450k/buổi</span>
-                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
-                    </div>
-                </article>
-                <article class="tutor-card">
-                    <div class="tutor-top">
-                        <div class="tutor-avatar avatar-2"></div>
-                        <span class="rating-pill">4.8</span>
-                    </div>
-                    <h3>Trần Minh Quân</h3>
-                    <div class="meta">Anh Văn • RMIT</div>
-                    <div class="tutor-tags">
-                        <span class="tag-pill">IELTS 8.5</span>
-                        <span class="tag-pill">Q.3</span>
-                    </div>
-                    <div class="tutor-actions">
-                        <span class="price">600k/buổi</span>
-                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
-                    </div>
-                </article>
-                <article class="tutor-card">
-                    <div class="tutor-top">
-                        <div class="tutor-avatar avatar-3"></div>
-                        <span class="rating-pill">5.0</span>
-                    </div>
-                    <h3>Lê Bảo Trân</h3>
-                    <div class="meta">Ngữ Văn • ĐHSP</div>
-                    <div class="tutor-tags">
-                        <span class="tag-pill">Thủ Đức</span>
-                        <span class="tag-pill">Giỏi Văn</span>
-                    </div>
-                    <div class="tutor-actions">
-                        <span class="price">300k/buổi</span>
-                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
-                    </div>
-                </article>
-                <article class="tutor-card">
-                    <div class="tutor-top">
-                        <div class="tutor-avatar avatar-4"></div>
-                        <span class="rating-pill">4.8</span>
-                    </div>
-                    <h3>Phạm Hoàng Nam</h3>
-                    <div class="meta">Kỹ sư CNTT • ĐH Bách Khoa</div>
-                    <div class="tutor-tags">
-                        <span class="tag-pill">Vật Lý</span>
-                        <span class="tag-pill">Lớp 12</span>
-                    </div>
-                    <div class="tutor-actions">
-                        <span class="price">400k/buổi</span>
-                        <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=1">Hồ sơ chi tiết</a>
-                    </div>
-                </article>
+                <%-- SỬ DỤNG JSTL ĐỂ LẶP QUA DANH SÁCH GIA SƯ ĐỘNG --%>
+                <c:choose>
+                    <c:when test="${not empty featuredTutors}">
+                        <c:forEach var="tutor" items="${featuredTutors}">
+                            <article class="tutor-card">
+                                <div class="tutor-top">
+                                        <%-- HIỂN THỊ AVATAR LINH HOẠT TỪ CLOUDINARY HOẶC ẢNH MẶC ĐỊNH --%>
+                                    <div class="tutor-avatar"
+                                         style="background-image: url('${not empty tutor.avatarUrl ? tutor.avatarUrl : pageContext.request.contextPath.concat('/assets/images/default-avatar.png')}');
+                                                 background-size: cover; background-position: center;">
+                                    </div>
+                                    <span class="rating-pill">${tutor.ratingAverage > 0 ? tutor.ratingAverage : '0.0'}</span>
+                                </div>
+                                <h3><c:out value="${tutor.fullName}"/></h3>
+                                <div class="meta"><c:out value="${tutor.qualification}"/></div>
+                                <div class="tutor-tags">
+                                    <span class="tag-pill"><c:out value="${tutor.teachingSubject}"/></span>
+                                    <span class="tag-pill"><c:out value="${tutor.teachingArea}"/></span>
+                                </div>
+                                <div class="tutor-actions">
+                                    <span class="price">
+                                        <fmt:formatNumber value="${tutor.hourlyRate}" type="number" groupingUsed="true"/>đ/buổi
+                                    </span>
+                                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=${tutor.tutorId}">Hồ sơ chi tiết</a>
+                                </div>
+                            </article>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 40px 0;">
+                            Hiện tại chưa có gia sư tiêu biểu nào được phê duyệt.
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </section>
 

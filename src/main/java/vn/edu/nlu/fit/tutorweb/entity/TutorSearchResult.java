@@ -10,6 +10,13 @@ public class TutorSearchResult {
     private long hourlyRate;
     private String qualification;
 
+    // 1. BỔ SUNG: Thuộc tính hứng trạng thái phê duyệt từ Database
+    private String verificationStatus;
+
+    // CONSTRUCTOR MẶC ĐỊNH (Bắt buộc phải có để JDBI .mapToBean hoạt động ổn định)
+    public TutorSearchResult() {
+    }
+
     // Getters & Setters
     public long getTutorId()          { return tutorId; }
     public void setTutorId(long v)    { tutorId = v; }
@@ -34,4 +41,21 @@ public class TutorSearchResult {
 
     public String getQualification()          { return qualification; }
     public void setQualification(String v)    { qualification = v; }
+    private String phone;
+
+
+    // Getter & Setter cho phone
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+
+
+    // 2. BỔ SUNG: Cặp hàm Getter/Setter viết đúng chuẩn CamelCase cho JSTL
+    public String getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
 }

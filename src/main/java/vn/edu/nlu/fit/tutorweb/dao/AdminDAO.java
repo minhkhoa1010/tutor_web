@@ -1,10 +1,13 @@
 package vn.edu.nlu.fit.tutorweb.dao;
 
 import vn.edu.nlu.fit.tutorweb.db.DBConnect;
+import vn.edu.nlu.fit.tutorweb.dto.StudentSearchResult;
 import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
+import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -258,5 +261,50 @@ public class AdminDAO {
                     data.get("birth_date") != null ? data.get("birth_date").toString() : null, (String) data.get("school"), (String) data.get("major")
             );
         });
+    }
+
+
+    public List<StudentSearchResult> getAllStudentsForAdmin() {
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("""
+                    SELECT 
+                        u.id         AS id,
+                        u.fullname   AS fullname,
+                        u.email      AS email,
+                        u.avatar_url AS avatarUrl,
+                        DATE_FORMAT(u.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+                        u.is_active  AS isActive
+                    FROM users u
+                    JOIN user_roles ur ON u.id = ur.user_id
+                    WHERE ur.role_id = 3
+                    ORDER BY u.id DESC
+                """)
+                        .mapToBean(StudentSearchResult.class)
+                        .list()
+        );
+    }
+
+    /**
+     * Hàm bổ sung: Lấy chi tiết 1 học viên duy nhất bằng ID phục vụ trang Detail
+     */
+    public StudentSearchResult getStudentByIdForAdmin(long studentId) {
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("""
+                SELECT 
+                    u.id         AS id,
+                    u.fullname   AS fullname,
+                    u.email      AS email,
+                    u.avatar_url AS avatarUrl,
+                    u.phone      AS phone,
+                    DATE_FORMAT(u.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+                    u.is_active  AS isActive
+                FROM users u
+                WHERE u.id = :id
+            """)
+                        .bind("id", studentId)
+                        .mapToBean(StudentSearchResult.class)
+                        .findOne()
+                        .orElse(null)
+        );
     }
 }

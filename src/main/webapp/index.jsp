@@ -9,38 +9,34 @@
 
 <jsp:include page="/views/common/navbar.jsp"/>
 
-<%-- ĐIỀU KIỆN LINH HOẠT: Kiểm tra vai trò TUTOR và trạng thái hồ sơ trong session --%>
+<%-- ĐIỀU KIỆN LINH HOẠT: Kiểm tra vai trò TUTOR và trạng thái hồ sơ gửi từ Servlet --%>
 <c:if test="${not empty sessionScope.clientUser}">
 
     <%-- TRƯỜNG HỢP 1: Hồ sơ đang chờ xét duyệt (PENDING) --%>
-    <c:if test="${sessionScope.tutorStatus eq 'PENDING'}">
-        <div style="background: #fef3c7; border-left: 4px solid #f59e0b;
-                    padding: 14px 24px; margin: 0; color: #92400e; font-size: 14px;
-                    display: flex; align-items: center; gap: 8px;">
-            <span>⏳</span>
+    <c:if test="${tutorStatus eq 'PENDING'}">
+        <div style="background-color: #fef3c7; border-left: 4px solid #d97706; padding: 16px; margin: 15px 0; border-radius: 6px; color: #92400e; font-size: 14px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <svg style="width: 20px; height: 20px; color: #d97706; flex-shrink: 0; margin-top: 1px;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
             <div>
-                Hồ sơ gia sư của bạn đang <strong>chờ Admin xét duyệt</strong>.
-                Thường mất 24 giờ. Hệ thống sẽ mở quyền truy cập Dashboard ngay khi được phê duyệt.
+                <span style="font-weight: 700; font-size: 15px; display: block; margin-bottom: 2px;">Hồ sơ đang chờ phê duyệt</span>
+                Hệ thống đang tiến hành xác thực thông tin tài khoản của bạn. Tiến trình này thường hoàn tất trong vòng 24 giờ. Quyền truy cập bảng điều khiển sẽ tự động mở khóa ngay sau khi được phê duyệt.
             </div>
         </div>
-        <%-- Xóa trạng thái khỏi session sau khi hiển thị một lần --%>
-        <c:remove var="tutorStatus" scope="session"/>
     </c:if>
 
     <%-- TRƯỜNG HỢP 2: Hồ sơ bị từ chối xét duyệt (REJECTED) --%>
-    <c:if test="${sessionScope.tutorStatus eq 'REJECTED'}">
-        <div style="background: #fee2e2; border-left: 4px solid #dc2626;
-                    padding: 14px 24px; margin: 0; color: #991b1b; font-size: 14px;
-                    display: flex; align-items: center; gap: 8px;">
-            <span>❌</span>
+    <c:if test="${tutorStatus eq 'REJECTED'}">
+        <div style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 16px; margin: 15px 0; border-radius: 6px; color: #991b1b; font-size: 14px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <svg style="width: 20px; height: 20px; color: #dc2626; flex-shrink: 0; margin-top: 1px;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
             <div>
-                Hồ sơ ứng tuyển gia sư của bạn đã <strong>bị từ chối</strong> do chưa đạt một số tiêu chí xét duyệt.
-
-                Vui lòng <a href="${pageContext.request.contextPath}/tutor/resubmit-profile" style="color: #b91c1c; font-weight: bold; text-decoration: underline;">nhấp vào đây để cập nhật lại hồ sơ năng lực</a>.
+                <span style="font-weight: 700; font-size: 15px; display: block; margin-bottom: 2px;">Yêu cầu xét duyệt bị từ chối</span>
+                Hồ sơ ứng tuyển thành viên của bạn chưa đáp ứng đủ các tiêu chí minh bạch hoặc thiếu chứng chỉ đính kèm.
+                Vui lòng <a href="${pageContext.request.contextPath}/tutor/resubmit-profile" style="color: #b91c1c; font-weight: 600; text-decoration: underline; transition: color 0.2s;">nhấp vào đây để bổ sung hồ sơ năng lực</a>.
             </div>
         </div>
-        <%-- Xóa trạng thái khỏi session sau khi hiển thị một lần --%>
-        <c:remove var="tutorStatus" scope="session"/>
     </c:if>
 
 </c:if>
@@ -192,23 +188,78 @@
                         <c:forEach var="tutor" items="${featuredTutors}">
                             <article class="tutor-card">
                                 <div class="tutor-top">
-                                        <%-- HIỂN THỊ AVATAR LINH HOẠT TỪ CLOUDINARY HOẶC ẢNH MẶC ĐỊNH --%>
                                     <div class="tutor-avatar"
                                          style="background-image: url('${not empty tutor.avatarUrl ? tutor.avatarUrl : pageContext.request.contextPath.concat('/assets/images/default-avatar.png')}');
                                                  background-size: cover; background-position: center;">
                                     </div>
                                     <span class="rating-pill">${tutor.ratingAverage > 0 ? tutor.ratingAverage : '0.0'}</span>
                                 </div>
+
                                 <h3><c:out value="${tutor.fullName}"/></h3>
-                                <div class="meta"><c:out value="${tutor.qualification}"/></div>
-                                <div class="tutor-tags">
-                                    <span class="tag-pill"><c:out value="${tutor.teachingSubject}"/></span>
-                                    <span class="tag-pill"><c:out value="${tutor.teachingArea}"/></span>
+                                <div class="meta" style="margin-bottom: 12px;">
+                                    <span style="font-weight: 600; color: #1f2937;"><c:out value="${tutor.qualification}"/></span>
+                                    <c:if test="${not empty tutor.school}">
+                                        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4b5563; margin-top: 4px;">
+                                            <svg style="width: 15px; height: 15px; color: #6b7280; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+                                            </svg>
+                                            <span><c:out value="${tutor.school}"/> (<c:out value="${tutor.major}"/>)</span>
+                                        </div>
+                                    </c:if>
                                 </div>
+
+                                <div class="tutor-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+    <span class="tag-pill" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f3f4f6; border-radius: 20px; font-size: 12px; color: #374151;">
+        <svg style="width: 14px; height: 14px; color: #4b5563;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+        </svg>
+        <c:out value="${tutor.teachingSubject}"/>
+    </span>
+
+                                    <c:if test="${not empty tutor.teachingGrade}">
+        <span class="tag-pill" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f3f4f6; border-radius: 20px; font-size: 12px; color: #374151;">
+            <svg style="width: 14px; height: 14px; color: #4b5563;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.174c-.053-.462.19-1.01.621-1.213L11.43 5.75a1.125 1.125 0 0 1 1.012 0l6.548 3.211c.43.203.673.75.62 1.213a35.53 35.53 0 0 1-.745 4.78c-.242 1.173-1.061 2.082-2.24 2.584l-3.492 1.487a1.125 1.125 0 0 1-.866 0l-3.492-1.487c-1.18-.502-1.998-1.411-2.24-2.584a35.531 35.531 0 0 1-.745-4.78ZM19.5 10.5v5.25c0 1.242-1.008 2.25-2.25 2.25h-1.5M4.5 10.5v5.25c0 1.242 1.008 2.25 2.25 2.25h1.5" />
+            </svg>
+            Lớp: <c:out value="${tutor.teachingGrade}"/>
+        </span>
+                                    </c:if>
+
+                                    <span class="tag-pill" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f3f4f6; border-radius: 20px; font-size: 12px; color: #374151;">
+        <svg style="width: 14px; height: 14px; color: #4b5563;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+        </svg>
+        <c:out value="${tutor.teachingArea}"/>
+    </span>
+
+                                    <c:choose>
+                                        <c:when test="${not empty tutor.availableSchedules}">
+            <span class="tag-pill" title="${tutor.availableSchedules}" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 20px; font-size: 12px; color: #16a34a; font-weight: 500; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <svg style="width: 14px; height: 14px; color: #16a34a; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                Lịch: <c:out value="${tutor.availableSchedules}"/>
+            </span>
+                                        </c:when>
+                                        <c:otherwise>
+            <span class="tag-pill" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 20px; font-size: 12px; color: #991b1b; font-style: italic;">
+                Chưa đăng ký lịch rảnh
+            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+
+                                <c:if test="${not empty tutor.experienceSummary}">
+                                    <p style="font-size: 13px; color: #6b7280; margin: 8px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        <c:out value="${tutor.experienceSummary}"/>
+                                    </p>
+                                </c:if>
+
                                 <div class="tutor-actions">
-                                    <span class="price">
-                                        <fmt:formatNumber value="${tutor.hourlyRate}" type="number" groupingUsed="true"/>đ/buổi
-                                    </span>
+            <span class="price">
+                <fmt:formatNumber value="${tutor.hourlyRate}" type="number" groupingUsed="true"/>đ/buổi
+            </span>
                                     <a class="btn btn-outline" href="${pageContext.request.contextPath}/tutors/detail?id=${tutor.tutorId}">Hồ sơ chi tiết</a>
                                 </div>
                             </article>

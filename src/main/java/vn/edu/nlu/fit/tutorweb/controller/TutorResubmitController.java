@@ -13,6 +13,7 @@ import vn.edu.nlu.fit.tutorweb.entity.UserSession;
 import vn.edu.nlu.fit.tutorweb.utils.CloudinaryConfig;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.Map;
 
 @WebServlet("/tutor/resubmit-profile")
@@ -64,27 +65,27 @@ public class TutorResubmitController extends HttpServlet {
         String hourlyRateStr = request.getParameter("hourlyRate");
         long hourlyRate = (hourlyRateStr != null && !hourlyRateStr.isBlank()) ? Long.parseLong(hourlyRateStr) : 0L;
 
-        Cloudinary cloudinary = CloudinaryConfig.getCloudinary();
+        // ==========================================
+        // 🌟 BỔ SUNG: Thu thập mảng lịch rảnh cập nhật từ Form gửi lên
+        // ==========================================
+        String[] schedulesArray = request.getParameterValues("schedules");
 
-        // Lấy thông tin profile hiện tại từ DB ĐỂ LẤY URL ẢNH CŨ trước khi bị ghi đè
+        Cloudinary cloudinary = CloudinaryConfig.getCloudinary();
         TutorProfile oldTutorProfile = adminDAO.getTutorProfileByUserId(userId);
 
-        // 1. Xử lý ảnh ĐẠI DIỆN mới & XÓA ẢNH CŨ
+        // 1. Xử lý ảnh ĐẠI DIỆN mới
         Part portrait = request.getPart("portrait");
         String newAvatarUrl = null;
         if (portrait != null && portrait.getSize() > 0) {
-            // Thực hiện xóa ảnh chân dung cũ trên Cloudinary nếu tồn tại URL cũ
             if (oldTutorProfile != null && oldTutorProfile.getPortraitUrl() != null) {
                 deleteFileFromCloudinary(cloudinary, oldTutorProfile.getPortraitUrl());
             }
-
-            // Upload ảnh chân dung mới
             byte[] data = portrait.getInputStream().readAllBytes();
             Map<?, ?> result = cloudinary.uploader().upload(data, ObjectUtils.emptyMap());
             newAvatarUrl = result.get("secure_url").toString();
         }
 
-        // 2. Xử lý ảnh BẰNG CẤP mới & XÓA BẰNG CẤP CŨ
+        // 2. Xử lý ảnh BẰNG CẤP mới
         java.util.List<String> newDegreeUrls = new java.util.ArrayList<>();
         try {
             boolean hasNewDegree = false;
@@ -94,15 +95,11 @@ public class TutorResubmitController extends HttpServlet {
                     break;
                 }
             }
-
-            // Nếu người dùng thực sự chọn tải lên bằng cấp mới -> Dọn sạch toàn bộ bằng cấp cũ
             if (hasNewDegree && oldTutorProfile != null && oldTutorProfile.getDegreeUrls() != null) {
                 for (String oldUrl : oldTutorProfile.getDegreeUrls()) {
                     deleteFileFromCloudinary(cloudinary, oldUrl);
                 }
             }
-
-            // Tiến hành upload loạt bằng cấp mới lên Cloudinary
             for (Part part : request.getParts()) {
                 if ("degreePhotos".equals(part.getName()) && part.getSize() > 0) {
                     byte[] data = part.getInputStream().readAllBytes();
@@ -111,10 +108,10 @@ public class TutorResubmitController extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Lỗi hoặc không có tệp bằng cấp mới.");
+            System.out.println("Không có tệp bằng cấp mới.");
         }
 
-        // 3. Xử lý ảnh CCCD mới & XÓA CCCD CŨ
+        // 3. Xử lý ảnh CCCD mới
         java.util.List<String> newIdCardUrls = new java.util.ArrayList<>();
         try {
             boolean hasNewIdCard = false;
@@ -124,15 +121,11 @@ public class TutorResubmitController extends HttpServlet {
                     break;
                 }
             }
-
-            // Nếu người dùng tải lên CCCD mới -> Xóa ảnh CCCD mặt trước/sau cũ trên Cloudinary
             if (hasNewIdCard && oldTutorProfile != null && oldTutorProfile.getIdCardUrls() != null) {
                 for (String oldUrl : oldTutorProfile.getIdCardUrls()) {
                     deleteFileFromCloudinary(cloudinary, oldUrl);
                 }
             }
-
-            // Upload loạt ảnh CCCD mới lên Cloudinary
             for (Part part : request.getParts()) {
                 if ("citizenPhotos".equals(part.getName()) && part.getSize() > 0) {
                     byte[] data = part.getInputStream().readAllBytes();
@@ -141,12 +134,20 @@ public class TutorResubmitController extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Lỗi hoặc không có tệp căn cước công dân mới.");
+            System.out.println("Không có tệp CCCD mới.");
         }
 
-        // Gọi DAO cập nhật dữ liệu xuống MySQL
+        // ==========================================
+        // 🌟 BỔ SUNG: Đổi từ lưu chuỗi tĩnh sang gọi hàm xử lý Ngày sinh linh hoạt
+        // ==========================================
+        Date birthDate = buildBirthDate(request);
+        if (birthDate != null) {
+            request.setAttribute("birthDateOverride", birthDate);
+        }
+
+        // Gọi DAO cập nhật toàn diện thông tin xuống MySQL (Bao gồm cả lịch rảnh và ngày sinh)
         boolean isUpdated = registrationDAO.updateTutorProfile(
-                userId, tutorId, request, newAvatarUrl, newDegreeUrls, newIdCardUrls, hourlyRate
+                userId, tutorId, request, newAvatarUrl, newDegreeUrls, newIdCardUrls, hourlyRate, schedulesArray
         );
 
         if (isUpdated) {
@@ -160,39 +161,38 @@ public class TutorResubmitController extends HttpServlet {
         }
     }
 
-    /**
-     * HÀM TIỆN ÍCH: Tự động tách public_id từ URL và gọi lệnh xóa file trên Cloudinary
-     */
-    private void deleteFileFromCloudinary(Cloudinary cloudinary, String fileUrl) {
-        if (fileUrl == null || fileUrl.isBlank() || !fileUrl.contains("cloudinary.com")) {
-            return;
-        }
+    private Date buildBirthDate(HttpServletRequest request) {
         try {
-            // Ví dụ: https://res.cloudinary.com/demo/image/upload/v12345/folder/name.png
-            // Bóc tách lấy: folder/name
+            // Đọc trực tiếp từ input type="date" mới thay vì ghép 3 selectbox ngày/tháng/năm cũ
+            String birthDateStr = request.getParameter("birthDate");
+            if (birthDateStr == null || birthDateStr.isBlank()) {
+                return null;
+            }
+            return Date.valueOf(birthDateStr); // Chuyển chuỗi YYYY-MM-DD thẳng sang java.sql.Date
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void deleteFileFromCloudinary(Cloudinary cloudinary, String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank() || !fileUrl.contains("cloudinary.com")) return;
+        try {
             int uploadIndex = fileUrl.indexOf("/upload/");
             if (uploadIndex != -1) {
-                String subStr = fileUrl.substring(uploadIndex + 8); // Cắt bỏ phần đầu đến hết "/upload/"
+                String subStr = fileUrl.substring(uploadIndex + 8);
                 int versionIndex = subStr.indexOf("/");
-
-                // Nếu có chuỗi version v123456789/ thì cắt bỏ tiếp
                 if (subStr.substring(0, versionIndex).startsWith("v")) {
                     subStr = subStr.substring(versionIndex + 1);
                 }
-
-                // Cắt bỏ phần mở rộng định dạng file (.jpg, .png, ...)
                 int dotIndex = subStr.lastIndexOf(".");
                 if (dotIndex != -1) {
                     String publicId = subStr.substring(0, dotIndex);
-
-                    // Thực thi lệnh xóa trực tiếp trên Cloudinary Cloud
-                    Map<?, ?> deleteResult = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-                    System.out.println(">>> CLOUDINARY DELETE LOG: File " + publicId + " -> " + deleteResult.get("result"));
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
                 }
             }
         } catch (Exception e) {
-            System.err.println(">>> KHÔNG THỂ XÓA FILE TRÊN CLOUDINARY: " + fileUrl);
-            e.printStackTrace();
+            System.err.println("Không thể xóa file: " + fileUrl);
         }
     }
 }

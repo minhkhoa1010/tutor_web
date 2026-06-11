@@ -6,9 +6,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.fit.tutorweb.dao.AdminDAO;
+import vn.edu.nlu.fit.tutorweb.db.DBConnect; // Đảm bảo import đúng lớp DBConnect của bạn
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/tutor-detail",
@@ -35,8 +37,26 @@ public class AdminTutorServlet extends HttpServlet {
             case "/admin/tutor-detail" -> {
                 TutorProfile tutor = adminDAO.getTutorProfileById(tutorId);
                 if (tutor != null) {
+
+                    // FIX LỖI: Truy vấn trực tiếp danh sách khung giờ từ Database dựa theo tutorId
+                    // Nếu DB của bạn bảng 'time_slots' có cột tên khung giờ (ví dụ: name, slot_name, hoặc slot_code), hãy JOIN để lấy chuỗi chữ hiển thị.
+                    // Ở đây mình lấy ra chuỗi hiển thị tương ứng từ id trong bảng trung gian.
+                    List<String> scheduleList = DBConnect.get().withHandle(h ->
+                            h.createQuery("""
+                            SELECT ts.slot_name 
+                            FROM tutor_schedules tsch
+                            JOIN time_slots ts ON tsch.time_slot_id = ts.id
+                            WHERE tsch.tutor_id = :tutorId
+                        """)
+                                    .bind("tutorId", tutorId)
+                                    .mapTo(String.class)
+                                    .list()
+                    );
+
+                    // Đẩy danh sách chuỗi lịch rảnh này sang phía JSP
                     request.setAttribute("tutor", tutor);
-                    // SỬA Ở ĐÂY: Trỏ trực tiếp về file JSP giao diện của bạn
+                    request.setAttribute("scheduleList", scheduleList);
+
                     request.getRequestDispatcher("/views/admin/tutor-detail-admin.jsp").forward(request, response);
                 } else {
                     response.sendRedirect(request.getContextPath() + "/admin/dashboard");

@@ -22,6 +22,6 @@ public class LogoutServlet extends HttpServlet {
         }
 
         // Điều hướng mượt mà về thẳng trang chủ sau khi dọn dẹp xong dữ liệu
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
+        response.sendRedirect(request.getContextPath() + "/home");
     }
 }

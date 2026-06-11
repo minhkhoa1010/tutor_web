@@ -233,8 +233,14 @@
                                 <input class="input-field" type="text" name="major" placeholder="Sư Phạm Vật Lý" required>
                             </div>
                             <div class="form-group form-field-full">
-                                <label class="label">Trình độ</label>
-                                <textarea class="textarea" name="qualification" placeholder="Thông tin học vấn, thành tích..." rows="4"></textarea>
+                                <label class="label">Trình độ / Bằng cấp cao nhất <span class="req">*</span></label>
+                                <select class="select-field" name="qualification" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" required>
+                                    <option value="">-- Chọn trình độ hiện tại --</option>
+                                    <option value="Sinh Viên">Sinh Viên</option>
+                                    <option value="Cử Nhân">Cử Nhân</option>
+                                    <option value="Thạc Sĩ">Thạc Sĩ</option>
+                                    <option value="Giáo Viên">Giáo Viên / Giảng Viên</option>
+                                </select>
                             </div>
                             <div class="form-group form-field-full">
                                 <label class="label">Ưu điểm</label>
@@ -245,6 +251,38 @@
                     <div class="form-section">
                         <h3 class="form-section-title">Thông tin giảng dạy</h3>
                         <div class="form-grid">
+                            <div class="form-group form-field-full" style="margin-top: 24px;">
+                                <label class="label" style="display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                                    <svg style="width: 18px; height: 18px; color: #4b5563;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                    </svg>
+                                    Thời gian dạy phù hợp (Lịch rảnh) <span class="req">*</span>
+                                </label>
+                                <div style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Vui lòng chọn các khoảng thời gian bạn có thể nhận lớp ổn định.</div>
+                                <div class="chip-grid">
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="1"> Sáng Thứ 2</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="2"> Chiều Thứ 2</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="3"> Tối Thứ 2</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="4"> Sáng Thứ 3</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="5"> Chiều Thứ 3</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="6"> Tối Thứ 3</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="7"> Sáng Thứ 4</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="8"> Chiều Thứ 4</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="9"> Tối Thứ 4</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="10"> Sáng Thứ 5</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="11"> Chiều Thứ 5</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="12"> Tối Thứ 5</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="13"> Sáng Thứ 6</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="14"> Chiều Thứ 6</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="15"> Tối Thứ 6</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="16"> Sáng Thứ 7</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="17"> Chiều Thứ 7</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="18"> Tối Thứ 7</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="19"> Sáng CN</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="20"> Chiều CN</label>
+                                    <label class="check-card"><input type="checkbox" name="schedules" value="21"> Tối CN</label>
+                                </div>
+                            </div>
                             <div class="form-group form-field-full">
                                 <label class="label">Môn dạy <span class="req">*</span></label>
                                 <div class="chip-grid">

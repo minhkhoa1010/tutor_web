@@ -13,7 +13,7 @@
             <a href="${pageContext.request.contextPath}/tutors">Tìm gia sư</a>
             <a href="#">Lớp mới</a>
             <a href="${pageContext.request.contextPath}/views/auth/register.jsp">Trở thành gia sư</a>
-            <a href="${pageContext.request.contextPath}/views/contact/index.jsp">Liên hệ</a>
+            <a href="${pageContext.request.contextPath}/lien-he">Liên hệ</a>
         </nav>
 
         <%-- CHECK TRẠNG THÁI ĐĂNG NHẬP --%>

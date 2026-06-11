@@ -30,4 +30,26 @@ public class TutorDAO {
                         .list()
         );
     }
+
+    public List<TutorSearchResult> getAllTutorsForAdmin() {
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("""
+        SELECT
+            t.id            AS tutorId,
+            u.fullname      AS fullName,
+            u.avatar_url    AS avatarUrl,
+            t.teaching_subject AS teachingSubject,
+            t.teaching_area    AS teachingArea,
+            t.hourly_rate      AS hourlyRate,
+            t.rating_average   AS ratingAverage,
+            t.qualification    AS qualification,
+            t.verification_status AS verificationStatus
+        FROM tutors t
+        JOIN users u ON t.user_id = u.id
+        ORDER BY t.id DESC
+    """)
+                        .mapToBean(TutorSearchResult.class)
+                        .list()
+        );
+    }
 }

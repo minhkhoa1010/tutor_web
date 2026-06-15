@@ -130,7 +130,10 @@
                             </div>
                             <div class="form-group form-field-full">
                                 <label class="label">Ưu điểm & Kinh nghiệm</label>
-                                <textarea class="textarea" name="strengths" placeholder="Thông tin thế mạnh của bạn..." rows="4">${t.subjects}</textarea>
+                                <textarea class="textarea"
+                                          name="experienceSummary"
+                                          placeholder="Thông tin thế mạnh và kinh nghiệm giảng dạy của bạn..."
+                                          rows="4">${t.experienceSummary}</textarea>
                             </div>
                         </div>
                     </div>

@@ -8,9 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import vn.edu.nlu.fit.tutorweb.dao.AdminDAO;
+import vn.edu.nlu.fit.tutorweb.dao.ReviewDAO;
 import vn.edu.nlu.fit.tutorweb.dao.TutorDAO;
-import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+import vn.edu.nlu.fit.tutorweb.dto.SubjectCard;
+import vn.edu.nlu.fit.tutorweb.entity.Review;
 import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
+import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+import vn.edu.nlu.fit.tutorweb.utils.SubjectUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,44 +23,110 @@ import java.util.List;
 public class HomeServlet extends HttpServlet {
 
     private final TutorDAO tutorDAO = new TutorDAO();
-    private final AdminDAO adminDAO = new AdminDAO();
+    private final ReviewDAO reviewDAO = new ReviewDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // CHỐNG CACHE: Buộc trình duyệt luôn tải mới, không lưu giao diện cũ khi logout/đổi tài khoản
-        resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-        resp.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-        resp.setDateHeader("Expires", 0); // Proxies.
+        // chống cache
+        resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        resp.setHeader("Pragma", "no-cache");
+        resp.setDateHeader("Expires", 0);
 
         HttpSession session = req.getSession();
         UserSession user = (UserSession) session.getAttribute("clientUser");
 
-        boolean pendingApproval = false;
-
-        // Chỉ kiểm tra và bật thông báo khi ĐÃ ĐĂNG NHẬP và PHẢI LÀ TUTOR
+        // trạng thái xác thực gia sư
         if (user != null && user.hasRole("TUTOR")) {
             String status = AdminDAO.getVerificationStatus(user.getId());
-            // Đẩy thẳng trạng thái vào request để JSP dùng
             req.setAttribute("tutorStatus", status);
         }
 
-        // Nếu đúng là đang chờ duyệt thì lưu vào session, ngược lại xóa thẳng tay khỏi session
-        if (pendingApproval) {
-            session.setAttribute("pendingApproval", true);
-        } else {
-            session.removeAttribute("pendingApproval");
-        }
+        session.removeAttribute("pendingApproval");
 
-        // ĐỘNG HÓA: Lấy danh sách 4 gia sư tiêu biểu từ cơ sở dữ liệu
-        List<TutorSearchResult> featuredTutors = tutorDAO.getFeaturedTutors(4);
+        /*
+         * ==========================
+         * SEARCH FILTER DATA
+         * ==========================
+         */
+
+        // Môn học
+        req.setAttribute("activeSubjects",
+                tutorDAO.getAllDistinctSubjects());
+
+        // Khu vực
+        req.setAttribute("activeAreas",
+                tutorDAO.getAllDistinctAreas());
+
+        // Lớp học
+        req.setAttribute("activeGrades",
+                tutorDAO.getAllDistinctGrades());
+
+        // Trình độ
+        req.setAttribute("activeDegrees",
+                tutorDAO.getAllDistinctDegrees());
+
+        // Khung giờ
+        req.setAttribute("activeSchedules",
+                tutorDAO.getAllTimeSlots());
+
+        /*
+         * ==========================
+         * GIA SƯ TIÊU BIỂU
+         * ==========================
+         */
+        List<TutorSearchResult> featuredTutors =
+                tutorDAO.getFeaturedTutors(6);
+
         req.setAttribute("featuredTutors", featuredTutors);
 
+        /*
+         * ==========================
+         * SUBJECT CARD
+         * ==========================
+         */
+        List<String> subjects =
+                tutorDAO.getAllDistinctSubjects();
+
+        List<SubjectCard> subjectCards = subjects.stream()
+                .map(subject -> new SubjectCard(
+                        subject,
+                        SubjectUtil.getIcon(subject),
+                        SubjectUtil.getBgColor(subject)
+                ))
+                .toList();
+
+        req.setAttribute("subjectCards", subjectCards);
+
+        /*
+         * ==========================
+         * REVIEW NỔI BẬT
+         * ==========================
+         */
+        List<Review> featuredReviews =
+                reviewDAO.getFeaturedReviews(3);
+
+        req.setAttribute("featuredReviews", featuredReviews);
+
+        /*
+         * ==========================
+         * PAGE INFO
+         * ==========================
+         */
         req.setAttribute("pageCss", "/assets/css/home.css");
         req.setAttribute("pageTitle", "Trang chủ - Gia Sư Bá Đạo");
 
-        System.out.println("HOME SERVLET RUNNING - Featured Tutors Loaded: " + (featuredTutors != null ? featuredTutors.size() : 0));
-        req.getRequestDispatcher("/index.jsp").forward(req, resp);
+        System.out.println(
+                "HOME SERVLET => Tutors: "
+                        + featuredTutors.size()
+                        + " | Subjects: "
+                        + subjectCards.size()
+                        + " | Reviews: "
+                        + featuredReviews.size()
+        );
+
+        req.getRequestDispatcher("/index.jsp")
+                .forward(req, resp);
     }
 }

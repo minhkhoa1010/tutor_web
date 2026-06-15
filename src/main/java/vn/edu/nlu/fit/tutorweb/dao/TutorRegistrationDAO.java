@@ -99,11 +99,20 @@ public class TutorRegistrationDAO {
 
                 System.out.println(">>> STEP 3: INSERT TUTOR PROFILE");
 
+                // 1. Lấy danh sách Môn học (Checkbox) kết hợp thành chuỗi "Toán, Lý, Hóa"
                 String subjects = request.getParameterValues("subjects") == null
                         ? ""
                         : String.join(", ", request.getParameterValues("subjects"));
 
-                // XỬ LÝ KHỐI LỚP DẠY: Lấy mảng dữ liệu từ frontend và gộp thành chuỗi
+                // 2. Lấy chuỗi Kinh nghiệm / Giới thiệu bản thân từ form
+                String experienceSummary =
+                        request.getParameter("experienceSummary");
+
+                if (experienceSummary == null) {
+                    experienceSummary = "";
+                }
+
+                // XỬ LÝ KHỐI LỚP DẠY
                 String[] gradesArray = request.getParameterValues("grades");
                 String grades = (gradesArray == null) ? "" : String.join(", ", gradesArray);
 
@@ -112,43 +121,43 @@ public class TutorRegistrationDAO {
                         : String.join(", ", request.getParameterValues("areas"));
 
                 Long tutorId = h.createUpdate("""
-                                    INSERT INTO tutors(
-                                        user_id,
-                                        qualification,
-                                        experience_summary,
-                                        teaching_subject,
-                                        teaching_grade,
-                                        hourly_rate,
-                                        id_card_number,
-                                        verification_status,
-                                        gender,
-                                        birth_date,
-                                        school,
-                                        major,
-                                        teaching_area
-                                    )
-                                    VALUES(
-                                        :userId,
-                                        :qualification,
-                                        :experience,
-                                        :subjects,
-                                        :grades,
-                                        :rate,
-                                        :cccd,
-                                        'PENDING',
-                                        :gender,
-                                        :birthDate,
-                                        :school,
-                                        :major,
-                                        :teachingArea
-                                    )
-                                """)
+                    INSERT INTO tutors(
+                        user_id,
+                        qualification,
+                        experience_summary,
+                        teaching_subject,
+                        teaching_grade,
+                        hourly_rate,
+                        id_card_number,
+                        verification_status,
+                        gender,
+                        birth_date,
+                        school,
+                        major,
+                        teaching_area
+                    )
+                    VALUES(
+                        :userId,
+                        :qualification,
+                        :experience,
+                        :subjects,
+                        :grades,
+                        :rate,
+                        :cccd,
+                        'PENDING',
+                        :gender,
+                        :birthDate,
+                        :school,
+                        :major,
+                        :teachingArea
+                    )
+                """)
                         .bind("userId", userId)
                         .bind("qualification", request.getParameter("qualification"))
-                        .bind("experience", request.getParameter("experience_summary"))
+                        .bind("experience", experienceSummary)
                         .bind("subjects", subjects)
-                        .bind("grades", grades) // Bind dữ liệu chuỗi lớp dạy vào đây
-                        .bind("rate", hourlyRate) // Sửa từ số 0 cứng thành biến hourlyRate lấy từ form gửi lên
+                        .bind("grades", grades)
+                        .bind("rate", hourlyRate)
                         .bind("cccd", request.getParameter("citizenId"))
                         .bind("gender", request.getParameter("gender"))
                         .bind("birthDate", buildBirthDate(request))
@@ -234,6 +243,24 @@ public class TutorRegistrationDAO {
                     }
                 }
 
+                // =========================================================================
+                // 🌟 🌟 🌟 BỔ SUNG KHỐI LƯU LỊCH RẢNH (TUTOR_SCHEDULES) KHI ĐĂNG KÝ MỚI
+                // =========================================================================
+                System.out.println(">>> STEP 5: INSERT TUTOR AVAILABLE SCHEDULES (NEW REGISTER)");
+                if (schedulesArray != null && schedulesArray.length > 0) {
+                    var batch = h.prepareBatch("INSERT INTO tutor_schedules(tutor_id, time_slot_id) VALUES(:tutorId, :slotId)");
+                    for (String slotIdStr : schedulesArray) {
+                        if (slotIdStr != null && !slotIdStr.isBlank()) {
+                            int slotId = Integer.parseInt(slotIdStr.trim());
+                            batch.bind("tutorId", tutorId) // Sử dụng chính xác mã gia sư vừa sinh ở Step 3
+                                    .bind("slotId", slotId)
+                                    .add();
+                        }
+                    }
+                    batch.execute();
+                    System.out.println(">>> Đã lưu đồng bộ lịch biểu rảnh thành công cho Gia sư mới!");
+                }
+
                 System.out.println(">>> REGISTER TUTOR SUCCESS");
                 return true;
             });
@@ -247,11 +274,23 @@ public class TutorRegistrationDAO {
 
     private Date buildBirthDate(HttpServletRequest request) {
         try {
+            // ƯU TIÊN 1: Lấy ngày sinh đã lọc sạch từ Controller gửi qua Attribute
+            if (request.getAttribute("validatedBirthDate") != null) {
+                return (Date) request.getAttribute("validatedBirthDate");
+            }
+
+            // ƯU TIÊN 2: Đọc trực tiếp nếu form gửi dạng input type="date"
+            String birthDateStr = request.getParameter("birthDate");
+            if (birthDateStr != null && !birthDateStr.isBlank()) {
+                return Date.valueOf(birthDateStr);
+            }
+
+            // ƯU TIÊN 3: Ghép dữ liệu từ 3 hộp chọn selectbox cũ nếu có
             String year = request.getParameter("birthYear");
             String month = request.getParameter("birthMonth");
             String day = request.getParameter("birthDay");
 
-            if (year == null || month == null || day == null) {
+            if (year == null || month == null || day == null || year.isBlank() || month.isBlank() || day.isBlank()) {
                 return null;
             }
 
@@ -262,6 +301,7 @@ public class TutorRegistrationDAO {
             return null;
         }
     }
+
     // CẬP NHẬT
     public boolean updateTutorProfile(
             long userId,
@@ -275,7 +315,6 @@ public class TutorRegistrationDAO {
             return DBConnect.get().inTransaction(h -> {
                 System.out.println(">>> STEP 1: UPDATE USERS (FULLNAME & AVATAR)");
 
-                // 1. Cập nhật Họ tên công khai và ảnh đại diện bảng users nếu có upload ảnh mới
                 if (newAvatarUrl != null && !newAvatarUrl.isBlank()) {
                     h.createUpdate("""
                     UPDATE users 
@@ -287,7 +326,6 @@ public class TutorRegistrationDAO {
                             .bind("userId", userId)
                             .execute();
 
-                    // FIX LỖI: Cập nhật luôn cả ảnh PORTRAIT trong bảng tutor_documents để đồng bộ màn chi tiết Admin
                     h.createUpdate("""
                     UPDATE tutor_documents 
                     SET file_url = :avatar, status = 'PENDING'
@@ -318,7 +356,6 @@ public class TutorRegistrationDAO {
                         ? ""
                         : String.join(", ", request.getParameterValues("areas"));
 
-                // 2. Cập nhật thông tin chi tiết hồ sơ gia sư
                 h.createUpdate("""
                 UPDATE tutors
                 SET 
@@ -332,14 +369,13 @@ public class TutorRegistrationDAO {
                     school              = :school,
                     major               = :major,
                     teaching_area       = :teachingArea,
-                    verification_status = 'PENDING' -- Tự động quay lại hàng chờ duyệt
+                    verification_status = 'PENDING'
                 WHERE id = :tutorId AND user_id = :userId
             """)
                         .bind("userId", userId)
                         .bind("tutorId", tutorId)
                         .bind("qualification", request.getParameter("qualification"))
-                        // 🌟 FIX LỖI 2: Đổi từ "experience_summary" thành "strengths" cho khớp với name bên JSP
-                        .bind("experience", request.getParameter("strengths"))
+                        .bind("experience", request.getParameter("experienceSummary"))
                         .bind("subjects", subjects)
                         .bind("grades", grades)
                         .bind("rate", hourlyRate)
@@ -352,7 +388,6 @@ public class TutorRegistrationDAO {
 
                 System.out.println(">>> STEP 3: UPDATE NEW LEGAL DOCUMENTS IF ANY");
 
-                // 3. Nếu gia sư bổ sung Bằng cấp mới, tiến hành xóa bản ghi DEGREE cũ và thêm mới
                 if (newDegreeDocs != null && !newDegreeDocs.isEmpty()) {
                     h.createUpdate("DELETE FROM tutor_documents WHERE tutor_id = :tutorId AND doc_type = 'DEGREE'")
                             .bind("tutorId", tutorId).execute();
@@ -362,7 +397,6 @@ public class TutorRegistrationDAO {
                     }
                 }
 
-                // 4. Nếu gia sư bổ sung ảnh CCCD mới, tiến hành xóa bản ghi ID_CARD cũ và thêm mới
                 if (newIdDocs != null && !newIdDocs.isEmpty()) {
                     h.createUpdate("DELETE FROM tutor_documents WHERE tutor_id = :tutorId AND doc_type LIKE 'ID_CARD%'")
                             .bind("tutorId", tutorId).execute();
@@ -373,20 +407,17 @@ public class TutorRegistrationDAO {
                     }
                 }
 
-                // 🌟 FIX LỖI 1: BỔ SUNG ĐỒNG BỘ LỊCH RẢNH (TUTOR_SCHEDULES) VÀO DATABASE
                 System.out.println(">>> STEP 4: UPDATE TUTOR AVAILABLE SCHEDULES");
 
-                // Xóa sạch lịch rảnh cũ để tránh trùng lặp dữ liệu
                 h.createUpdate("DELETE FROM tutor_schedules WHERE tutor_id = :tutorId")
                         .bind("tutorId", tutorId)
                         .execute();
 
-                // Chèn danh sách lịch rảnh mới bằng PrepareBatch để tối ưu hiệu năng
                 if (schedulesArray != null && schedulesArray.length > 0) {
                     var batch = h.prepareBatch("INSERT INTO tutor_schedules(tutor_id, time_slot_id) VALUES(:tutorId, :slotId)");
                     for (String slotIdStr : schedulesArray) {
                         if (slotIdStr != null && !slotIdStr.isBlank()) {
-                            int slotId = Integer.parseInt(slotIdStr.trim()); // Ép sang kiểu INT để khớp DB
+                            int slotId = Integer.parseInt(slotIdStr.trim());
                             batch.bind("tutorId", tutorId)
                                     .bind("slotId", slotId)
                                     .add();

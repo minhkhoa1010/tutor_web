@@ -22,7 +22,15 @@ public class TutorProfile {
     private final String birthDate;
     private final String school;
     private final String major;
+    private String experienceSummary;
 
+    public String getExperienceSummary() {
+        return experienceSummary;
+    }
+
+    public void setExperienceSummary(String experienceSummary) {
+        this.experienceSummary = experienceSummary;
+    }
     private String availableSchedules;
     // Cập nhật lại Constructor đầy đủ tham số
     public TutorProfile(long id, String fullName, String gender, String degreeLevel,

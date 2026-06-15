@@ -138,18 +138,29 @@ public class TutorResubmitController extends HttpServlet {
         }
 
         // ==========================================
-        // 🌟 BỔ SUNG: Đổi từ lưu chuỗi tĩnh sang gọi hàm xử lý Ngày sinh linh hoạt
+        // BỔ SUNG: Đổi từ lưu chuỗi tĩnh sang gọi hàm xử lý Ngày sinh linh hoạt
         // ==========================================
         Date birthDate = buildBirthDate(request);
         if (birthDate != null) {
-            request.setAttribute("birthDateOverride", birthDate);
+            // Đẩy ngày sinh đã parse chuẩn vào attribute để tầng DAO dùng chung an toàn
+            request.setAttribute("validatedBirthDate", birthDate);
         }
 
-        // Gọi DAO cập nhật toàn diện thông tin xuống MySQL (Bao gồm cả lịch rảnh và ngày sinh)
+        String experienceSummary = request.getParameter("experienceSummary");
+        if (experienceSummary == null || experienceSummary.isBlank()) {
+            experienceSummary = request.getParameter("experience");
+        }
+        if (experienceSummary == null) {
+            experienceSummary = "";
+        }
+
+        // Đưa ngược chuỗi đã lọc chuẩn hóa vào attribute để DAO luôn đọc được chính xác
+        request.setAttribute("validatedExperience", experienceSummary.trim());
+
+        // Gọi DAO cập nhật toàn diện thông tin xuống MySQL
         boolean isUpdated = registrationDAO.updateTutorProfile(
                 userId, tutorId, request, newAvatarUrl, newDegreeUrls, newIdCardUrls, hourlyRate, schedulesArray
         );
-
         if (isUpdated) {
             session.setAttribute("tutorStatus", "PENDING");
             response.sendRedirect(request.getContextPath() + "/home");

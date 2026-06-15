@@ -1,0 +1,28 @@
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+.schedule-table th, .schedule-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+}
+.schedule-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+.cell-active {
+    background: #f0fdfa;
+    color: #059669;
+    font-weight: bold;
+}
+.cell-empty {
+    background: #fafafa;
+}

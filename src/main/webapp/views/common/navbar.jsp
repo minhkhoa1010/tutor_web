@@ -20,8 +20,8 @@
         <c:choose>
             <c:when test="${empty sessionScope.clientUser}">
                 <div class="nav-cta">
-                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/views/auth/login.jsp">Đăng nhập</a>
-                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/views/auth/register.jsp">Đăng ký</a>
+                    <a class="btn btn-outline" href="${pageContext.request.contextPath}/login">Đăng nhập</a>
+                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/register-page">Đăng ký</a>
                 </div>
             </c:when>
 

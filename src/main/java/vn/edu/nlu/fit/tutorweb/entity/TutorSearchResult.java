@@ -1,7 +1,7 @@
 package vn.edu.nlu.fit.tutorweb.entity;
 
 public class TutorSearchResult {
-    // 1. Khai báo đầy đủ các thuộc tính (Fields) tương thích với DB
+    // 1. Khai báo đầy đủ các thuộc tính (Fields) tương thích với Database
     private long tutorId;
     private String fullName;
     private String avatarUrl;
@@ -16,55 +16,130 @@ public class TutorSearchResult {
     private String experienceSummary;
     private String teachingGrade;
     private String availableSchedules;
+    private String birthDate; // Đã sửa từ Object thành String đồng bộ với DB và JDBI
 
-    // 2. Constructor mặc định bắt buộc phải có cho BeanMapper
-    public TutorSearchResult() {}
+    // 2. Constructor mặc định bắt buộc phải có cho BeanMapper của JDBI hoạt động
+    public TutorSearchResult() {
+    }
 
-    // 3. Toàn bộ các hàm Getter và Setter chuẩn hóa cho JDBI và JSTL
-    public long getTutorId() { return tutorId; }
-    public void setTutorId(long tutorId) { this.tutorId = tutorId; }
+    // 3. Toàn bộ các hàm Getter và Setter chuẩn hóa cho JDBI BeanMapper và JSTL EL Expressions
+    public long getTutorId() {
+        return tutorId;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setTutorId(long tutorId) {
+        this.tutorId = tutorId;
+    }
 
-    public String getAvatarUrl() { return avatarUrl; }
-    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String getTeachingSubject() { return teachingSubject; }
-    public void setTeachingSubject(String teachingSubject) { this.teachingSubject = teachingSubject; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public String getTeachingArea() { return teachingArea; }
-    public void setTeachingArea(String teachingArea) { this.teachingArea = teachingArea; }
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
 
-    public long getHourlyRate() { return hourlyRate; }
-    public void setHourlyRate(long hourlyRate) { this.hourlyRate = hourlyRate; }
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 
-    public double getRatingAverage() { return ratingAverage; }
-    public void setRatingAverage(double ratingAverage) { this.ratingAverage = ratingAverage; }
+    public String getTeachingSubject() {
+        return teachingSubject;
+    }
 
-    public String getQualification() { return qualification; }
-    public void setQualification(String qualification) { this.qualification = qualification; }
+    public void setTeachingSubject(String teachingSubject) {
+        this.teachingSubject = teachingSubject;
+    }
 
-    public String getVerificationStatus() { return verificationStatus; }
-    public void setVerificationStatus(String verificationStatus) { this.verificationStatus = verificationStatus; }
+    public String getTeachingArea() {
+        return teachingArea;
+    }
 
-    public String getSchool() { return school; }
-    public void setSchool(String school) { this.school = school; }
+    public void setTeachingArea(String teachingArea) {
+        this.teachingArea = teachingArea;
+    }
 
-    public String getMajor() { return major; }
-    public void setMajor(String major) { this.major = major; }
+    public long getHourlyRate() {
+        return hourlyRate;
+    }
 
-    public String getExperienceSummary() { return experienceSummary; }
-    public void setExperienceSummary(String experienceSummary) { this.experienceSummary = experienceSummary; }
+    public void setHourlyRate(long hourlyRate) {
+        this.hourlyRate = hourlyRate;
+    }
 
-    public String getTeachingGrade() { return teachingGrade; }
-    public void setTeachingGrade(String teachingGrade) { this.teachingGrade = teachingGrade; }
+    public double getRatingAverage() {
+        return ratingAverage;
+    }
 
-    // Thêm Getter và Setter chuẩn cho BeanMapper
+    public void setRatingAverage(double ratingAverage) {
+        this.ratingAverage = ratingAverage;
+    }
+
+    public String getQualification() {
+        return qualification;
+    }
+
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
+    }
+
+    public String getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getExperienceSummary() {
+        return experienceSummary;
+    }
+
+    public void setExperienceSummary(String experienceSummary) {
+        this.experienceSummary = experienceSummary;
+    }
+
+    public String getTeachingGrade() {
+        return teachingGrade;
+    }
+
+    public void setTeachingGrade(String teachingGrade) {
+        this.teachingGrade = teachingGrade;
+    }
+
     public String getAvailableSchedules() {
         return availableSchedules;
     }
+
     public void setAvailableSchedules(String availableSchedules) {
         this.availableSchedules = availableSchedules;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 }

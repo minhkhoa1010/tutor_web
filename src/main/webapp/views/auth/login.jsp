@@ -14,7 +14,19 @@
   <div class="login-card">
     <h1 class="login-brand">Gia Sư Bá Đạo</h1>
     <p class="login-sub">Chào mừng bạn trở lại với học viện</p>
+    <c:if test="${not empty sessionScope.successMessage}">
+      <div style="
+            background:#ecfdf5;
+            color:#059669;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:16px;
+    ">
+          ${sessionScope.successMessage}
+      </div>
 
+      <c:remove var="successMessage" scope="session"/>
+    </c:if>
     <%-- Hiển thị lỗi nếu sai mật khẩu hoặc tài khoản bị khóa --%>
     <c:if test="${not empty authError}">
       <div style="background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 10px; font-size: 13px; text-align: left; margin-bottom: 10px;">
@@ -51,7 +63,17 @@
           <input type="checkbox" name="remember">
           <span>Ghi nhớ đăng nhập</span>
         </label>
-        <a class="forgot" href="#">Quên mật khẩu?</a>
+        <div style="text-align:right;margin-top:10px;">
+          <a href="${pageContext.request.contextPath}/forgot-password"
+             style="
+           color:#0d9488;
+           text-decoration:none;
+           font-size:14px;
+           font-weight:500;
+       ">
+            Quên mật khẩu?
+          </a>
+        </div>
       </div>
 
       <button class="btn-login" type="submit">Đăng nhập</button>

@@ -212,4 +212,92 @@ public class UserAuthDAO {
 
         }
     }
+    public Long findUserIdByEmail(String email) {
+        return jdbi.withHandle(h ->
+                h.createQuery("""
+                SELECT id
+                FROM users
+                WHERE email = :email
+            """)
+                        .bind("email", email)
+                        .mapTo(Long.class)
+                        .findOne()
+                        .orElse(null)
+        );
+    }
+    public boolean createResetToken(Long userId, String token) {
+
+        return jdbi.withHandle(h ->
+                h.createUpdate("""
+                INSERT INTO password_reset_tokens
+                (
+                    user_id,
+                    token,
+                    expired_at
+                )
+                VALUES
+                (
+                    :userId,
+                    :token,
+                    DATE_ADD(NOW(), INTERVAL 30 MINUTE)
+                )
+            """)
+                        .bind("userId", userId)
+                        .bind("token", token)
+                        .execute() > 0
+        );
+    }
+    public void markTokenUsed(String token) {
+
+        jdbi.useHandle(h ->
+                h.createUpdate("""
+                UPDATE password_reset_tokens
+                SET used = 1
+                WHERE token = :token
+            """)
+                        .bind("token", token)
+                        .execute()
+        );
+    }
+    public boolean updatePasswordByUserId(
+            Long userId,
+            String newPassword
+    ) {
+
+        String hash =
+                BCrypt.hashpw(
+                        newPassword,
+                        BCrypt.gensalt()
+                );
+
+        return jdbi.withHandle(h ->
+                h.createUpdate("""
+                UPDATE users
+                SET password = :password
+                WHERE id = :userId
+            """)
+                        .bind("password", hash)
+                        .bind("userId", userId)
+                        .execute() > 0
+        );
+    }
+
+    public Long validateResetToken(String token) {
+
+        String sql = """
+        SELECT user_id
+        FROM password_reset_tokens
+        WHERE token = :token
+          AND expired_at > NOW()
+          AND used = FALSE
+    """;
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("token", token)
+                        .mapTo(Long.class)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
 }

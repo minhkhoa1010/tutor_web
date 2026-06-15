@@ -243,8 +243,16 @@
                                 </select>
                             </div>
                             <div class="form-group form-field-full">
-                                <label class="label">Ưu điểm</label>
-                                <textarea class="textarea" name="strengths" placeholder="Kinh nghiệm và thành tích trong quá trình học tập và dạy kèm." rows="4"></textarea>
+                                <label for="experience" style="font-weight: 600; margin-bottom: 8px; display: block;">
+                                    Kinh nghiệm giảng dạy & Thành tích <span class="req">*</span>
+                                </label>
+                                <textarea id="experience" name="experienceSummary" rows="5"
+                                          style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: none;"
+                                          placeholder="Mời bạn nhập thông tin theo mẫu:
+- Học lực/Thành tích: [Ví dụ: Thủ khoa, GPA 3.8/4.0, Chứng chỉ IELTS 7.5...]
+- Kinh nghiệm: [Ví dụ: Đã có 2 năm giảng dạy, kèm cặp 10+ học sinh...]
+- Phương pháp dạy: [Ví dụ: Tập trung vào tư duy logic, không gây áp lực...
+- Gia sư có thể tự thêm:.....]"></textarea>
                             </div>
                         </div>
                     </div>

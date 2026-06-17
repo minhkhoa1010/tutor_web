@@ -3,9 +3,9 @@
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Danh sách Gia sư - Gia Sư Bá Đạo"/>
-</jsp:include>
+<c:set var="pageTitle" value="Danh sách Gia sư - Gia Sư Bá Đạo" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
 
 <jsp:include page="/views/common/navbar.jsp"/>
 

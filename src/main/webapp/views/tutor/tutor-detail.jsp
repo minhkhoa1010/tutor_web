@@ -4,11 +4,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%-- 1. Nhúng Header động và truyền thông tin cấu trúc Layout --%>
-<jsp:include page="/views/common/header.jsp">
-  <jsp:param name="pageTitle" value="${not empty requestScope.tutor.fullName ? requestScope.tutor.fullName : 'Hồ sơ gia sư'} - Gia Sư Bá Đạo" />
-  <jsp:param name="pageCss" value="/assets/css/tutor-detail.css" />
-</jsp:include>
-<jsp:include page="/views/common/navbar.jsp" />
+<c:set var="pageTitle" value="${not empty requestScope.tutor.fullName ? requestScope.tutor.fullName : 'Hồ sơ gia sư'} - Gia Sư Bá Đạo" scope="request"/>
+<c:set var="pageCss" value="/assets/css/tutor-detail.css" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
+<jsp:include page="/views/common/navbar.jsp"/>
 
 <%-- 2. Đặt biến cục bộ 't' đại diện cho đối tượng tutor từ requestScope truyền sang --%>
 <c:set var="t" value="${requestScope.tutor}"/>

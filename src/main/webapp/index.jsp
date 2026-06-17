@@ -2,10 +2,10 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Trang chủ - Gia Sư Bá Đạo"/>
-    <jsp:param name="pageCss" value="/assets/css/home.css"/>
-</jsp:include>
+<c:set var="pageTitle" value="Trang chủ - Gia Sư Bửu Đạo" scope="request"/>
+<c:set var="pageCss" value="/assets/css/home.css" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
 
 <jsp:include page="/views/common/navbar.jsp"/>
 <link rel="stylesheet"

@@ -1,9 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Liên hệ - Gia Sư Bá Đạo"/>
-    <jsp:param name="pageCss" value="/assets/css/contact.css"/>
-</jsp:include>
+<c:set var="pageTitle" value="Liên hệ - Gia Sư Bá Đạo" scope="request"/>
+<c:set var="pageCss" value="/assets/css/contact.css" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
 
 <jsp:include page="/views/common/navbar.jsp"/>
 

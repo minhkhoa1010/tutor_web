@@ -1,9 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Đặt lại mật khẩu"/>
-</jsp:include>
+<c:set var="pageTitle" value="Đặt lại mật khẩu" scope="request"/>
+<jsp:include page="/views/common/header.jsp"/>
 
 <jsp:include page="/views/common/navbar.jsp"/>
 

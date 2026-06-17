@@ -1,8 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Dang ky - Gia Su Ba Dao" />
-    <jsp:param name="pageCss" value="/assets/css/register.css" />
-</jsp:include>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+
+<c:set var="pageTitle" value="Đăng ký - Gia Sư Bá Đạo" scope="request"/>
+<c:set var="pageCss" value="/assets/css/register.css" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
 <jsp:include page="/views/common/navbar.jsp" />
 
 <main class="page-main">

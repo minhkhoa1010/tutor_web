@@ -33,9 +33,9 @@
                 <span class="nav-icon material-symbols-outlined">group</span>
                 <span>Học viên</span>
             </a>
-            <a href="${pageContext.request.contextPath}/admin/classes" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">menu_book</span>
-                <span>Lớp học</span>
+            <a href="${pageContext.request.contextPath}/admin/complaints" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">gavel</span>
+                <span>Xử lý khiếu nại</span>
             </a>
             <a href="${pageContext.request.contextPath}/admin/payments" class="nav-item">
                 <span class="nav-icon material-symbols-outlined">payments</span>

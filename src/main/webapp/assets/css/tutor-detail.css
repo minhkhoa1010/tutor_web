@@ -26,3 +26,17 @@
 .cell-empty {
     background: #fafafa;
 }
+   /* Ngày bị người khác thuê - Xám đi */
+ .schedule-label.booked {
+     background: #f1f5f9 !important;
+     border-color: #e2e8f0 !important;
+     color: #94a3b8 !important;
+     text-decoration: line-through;
+ }
+
+/* Ngày chính bạn đã thuê - Nổi bật */
+.schedule-label.my-booked {
+    border: 2px solid #0d9488 !important;
+    background: #f0fdfa !important;
+    color: #065f46 !important;
+}

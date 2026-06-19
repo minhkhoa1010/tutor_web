@@ -212,9 +212,13 @@
                 <span class="nav-icon material-symbols-outlined">gavel</span>
                 <span>Xử lý khiếu nại</span>
             </a>
-            <a href="${pageContext.request.contextPath}/admin/payments" class="nav-item">
+            <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">contact_support</span>
+                <span>Yêu cầu liên hệ</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item">
                 <span class="nav-icon material-symbols-outlined">payments</span>
-                <span>Thanh toán</span>
+                <span>Duyệt rút tiền</span>
             </a>
         </nav>
 
@@ -281,11 +285,11 @@
                     <div class="kpi-top">
                         <div class="kpi-icon blue-icon material-symbols-outlined">school</div>
                         <c:choose>
-                            <c:when test="${not empty tutorGrowth && !tutorGrowth.startsWith('-')}">
-                                <span class="kpi-badge green-badge">+${tutorGrowth}%</span>
+                            <c:when test="${not empty tutorGrowth && tutorGrowth >= 0}">
+                                <span class="kpi-badge green-badge">+<fmt:formatNumber value="${tutorGrowth}" maxFractionDigits="1"/>%</span>
                             </c:when>
                             <c:otherwise>
-                                <span class="kpi-badge red-badge">${tutorGrowth}%</span>
+                                <span class="kpi-badge red-badge"><fmt:formatNumber value="${tutorGrowth}" maxFractionDigits="1"/>%</span>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -297,11 +301,11 @@
                     <div class="kpi-top">
                         <div class="kpi-icon green-icon material-symbols-outlined">group</div>
                         <c:choose>
-                            <c:when test="${not empty studentGrowth && !studentGrowth.startsWith('-')}">
-                                <span class="kpi-badge green-badge">+${studentGrowth}%</span>
+                            <c:when test="${not empty studentGrowth && studentGrowth >= 0}">
+                                <span class="kpi-badge green-badge">+<fmt:formatNumber value="${studentGrowth}" maxFractionDigits="1"/>%</span>
                             </c:when>
                             <c:otherwise>
-                                <span class="kpi-badge red-badge">${studentGrowth}%</span>
+                                <span class="kpi-badge red-badge"><fmt:formatNumber value="${studentGrowth}" maxFractionDigits="1"/>%</span>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -316,7 +320,7 @@
                     </div>
                     <div class="kpi-label">Doanh thu tháng này</div>
                     <div class="kpi-value">
-                        <fmt:formatNumber value="${not empty monthlyRevenue ? monthlyRevenue : 0}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                        <fmt:formatNumber value="${not empty monthlyRevenue ? monthlyRevenue : 0}" pattern="#,##0"/> đ
                     </div>
                 </div>
 

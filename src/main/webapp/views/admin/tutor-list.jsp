@@ -38,9 +38,13 @@
                 <span class="nav-icon material-symbols-outlined">gavel</span>
                 <span>Xử lý khiếu nại</span>
             </a>
-            <a href="${pageContext.request.contextPath}/admin/payments" class="nav-item">
+            <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">contact_support</span>
+                <span>Yêu cầu liên hệ</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item">
                 <span class="nav-icon material-symbols-outlined">payments</span>
-                <span>Thanh toán</span>
+                <span>Duyệt rút tiền</span>
             </a>
         </nav>
         <div class="sidebar-bottom">

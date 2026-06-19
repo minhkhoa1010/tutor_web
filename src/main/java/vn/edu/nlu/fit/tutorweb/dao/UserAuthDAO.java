@@ -11,8 +11,9 @@ import java.util.Map;
 public class UserAuthDAO {
     private final Jdbi jdbi = DBConnect.get();
 
+    // 1. Đăng nhập bằng tài khoản/mật khẩu thông thường
     public UserSession loginWithCredentials(String identifier, String password) {
-        String sql = "SELECT id, username, password, email, fullname, avatar_url, is_active " +
+        String sql = "SELECT id, username, password, email, fullname, avatar_url, balance, is_active, phone " +
                 "FROM users WHERE email = :identifier OR username = :identifier OR phone = :identifier";
 
         return jdbi.withHandle(handle -> {
@@ -43,6 +44,11 @@ public class UserAuthDAO {
                                 user.setEmail((String) row.get("email"));
                                 user.setFullname((String) row.get("fullname"));
                                 user.setAvatarUrl((String) row.get("avatar_url"));
+                                user.setPhone((String) row.get("phone"));
+                                // 🔥 ĐÃ THÊM: Đọc giá trị balance từ hàng kết quả dữ liệu và map vào đối tượng
+                                Object balanceObj = row.get("balance");
+                                user.setBalance(balanceObj != null ? Long.parseLong(balanceObj.toString()) : 0L);
+
                                 user.setRoles(getUserRoles(user.getId()));
                                 return user;
                             }
@@ -82,6 +88,7 @@ public class UserAuthDAO {
                     .orElse(null);
 
             if (userId == null) {
+                // Khi đăng ký tài khoản MXH mới, mặc định trường balance sẽ là 0 nhờ cơ chế Database DEFAULT 0
                 String insertUserSql = "INSERT INTO users (username, password, email, fullname, avatar_url, is_active) " +
                         "VALUES (:username, :password, :email, :fullname, :avatarUrl, 1)";
 
@@ -131,7 +138,8 @@ public class UserAuthDAO {
 
     // Hàm phụ lấy User thông qua ID
     public UserSession getUserById(long userId) {
-        String sql = "SELECT id, username, email, fullname, avatar_url, is_active FROM users WHERE id = :userId";
+        // 🔥 ĐÃ THÊM: Cột balance vào câu lệnh SELECT của hàm tìm theo ID
+        String sql = "SELECT id, username, email, fullname, avatar_url, balance, is_active, phone FROM users WHERE id = :userId";
 
         return jdbi.withHandle(handle -> {
             return handle.createQuery(sql)
@@ -152,12 +160,18 @@ public class UserAuthDAO {
                         user.setEmail((String) row.get("email"));
                         user.setFullname((String) row.get("fullname"));
                         user.setAvatarUrl((String) row.get("avatar_url"));
+                        user.setPhone((String) row.get("phone"));
+                        // 🔥 ĐÃ THÊM: Đọc giá trị balance từ hàng kết quả dữ liệu
+                        Object balanceObj = row.get("balance");
+                        user.setBalance(balanceObj != null ? Long.parseLong(balanceObj.toString()) : 0L);
+
                         user.setRoles(getUserRoles(userId));
                         return user;
                     }).orElse(null);
         });
     }
 
+    // Đăng ký tài khoản người dùng thông thường
     public boolean register(String email,
                             String phone,
                             String fullname,
@@ -212,6 +226,7 @@ public class UserAuthDAO {
 
         }
     }
+
     public Long findUserIdByEmail(String email) {
         return jdbi.withHandle(h ->
                 h.createQuery("""
@@ -225,6 +240,7 @@ public class UserAuthDAO {
                         .orElse(null)
         );
     }
+
     public boolean createResetToken(Long userId, String token) {
 
         return jdbi.withHandle(h ->
@@ -247,6 +263,7 @@ public class UserAuthDAO {
                         .execute() > 0
         );
     }
+
     public void markTokenUsed(String token) {
 
         jdbi.useHandle(h ->
@@ -259,6 +276,7 @@ public class UserAuthDAO {
                         .execute()
         );
     }
+
     public boolean updatePasswordByUserId(
             Long userId,
             String newPassword

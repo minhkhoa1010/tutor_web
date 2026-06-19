@@ -9,7 +9,7 @@
   <jsp:param name="pageCss" value="/assets/css/tutor-detail.css" />
 </jsp:include>
 <jsp:include page="/views/common/navbar.jsp" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <%-- 2. Đặt biến cục bộ 't' đại diện cho đối tượng tutor từ requestScope truyền sang --%>
 <c:set var="t" value="${requestScope.tutor}"/>
 
@@ -79,26 +79,102 @@
               <span><strong>Giới tính:</strong> ${t.gender eq 'Nam' || t.gender eq 'MALE' ? 'Nam' : (t.gender eq 'Nữ' || t.gender eq 'FEMALE' ? 'Nữ' : 'Chưa cập nhật')}</span>
             </div>
           </div>
+          <!-- KHU VỰC CHỌN LỊCH HỌC TRỰC QUAN (THÊM VÀO ĐÂY) -->
+          <div class="schedule-selection-box" style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <p style="font-weight: 600; color: #1e293b; margin-bottom: 12px; font-size: 14px;">Chọn lịch học:</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <c:set var="scheduleArray" value="${fn:split(t.availableSchedules, ',')}" />
+              <c:forEach var="day" items="${scheduleArray}">
+                <c:set var="cleanDay" value="${fn:trim(day)}" />
+                <c:set var="isBusy" value="${fn:contains(allBusyDays, cleanDay)}" />
+                <c:set var="isMine" value="${fn:contains(myBookedDays, cleanDay)}" />
 
+                <c:if test="${not empty cleanDay}">
+                  <label class="schedule-label ${isBusy ? 'booked' : ''} ${isMine ? 'my-booked' : ''}"
+                         style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 6px; cursor: ${isBusy ? 'not-allowed' : 'pointer'}; border: 1px solid #cbd5e1; font-size: 13px; transition: all 0.2s;">
+                    <input type="checkbox" value="${cleanDay}"
+                           class="tutor-schedule-checkbox"
+                      ${isBusy ? 'disabled' : ''}
+                      ${isMine ? 'checked' : ''}
+                           style="accent-color: #0d9488;">
+                    <span style="font-weight: 500;">${cleanDay} ${isBusy ? '(Đã thuê)' : ''}</span>
+                  </label>
+                </c:if>
+              </c:forEach>
+            </div>
+          </div>
           <%-- NÚT HÀNH ĐỘNG ĐĂNG KÝ HỌC --%>
           <div class="action-box" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
             <form method="get" action="<%= request.getContextPath() %>/booking/create">
               <input type="hidden" name="tutorId" value="${t.id}">
-              <button type="submit" class="btn btn-primary" style="width: 100%; margin: 0; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2);">
-                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <%-- Thay form booking cũ bằng nút mở popup --%>
+              <button type="button" onclick="openHireModal()"
+                      class="btn btn-primary"
+                      style="width:100%; padding:14px; font-size:15px; font-weight:600; border-radius:8px;
+               cursor:pointer; border:none; display:inline-flex; align-items:center;
+               justify-content:center; gap:8px; box-shadow:0 4px 6px -1px rgba(13,148,136,0.2);">
+                <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
                 Đăng ký nhận gia sư này
               </button>
             </form>
           </div>
-
+          <%-- NÚT WISHLIST + CART TRONG SIDEBAR DETAIL --%>
+          <c:set var="isFavDetail" value="${not empty savedTutorIds && fn:contains(savedTutorIds, t.id)}" />
+          <c:set var="isInCartDetail" value="${not empty cartTutorIds && fn:contains(cartTutorIds, t.id)}" />
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <%-- Trái tim: Wishlist --%>
+            <button id="btn-detail-wishlist"
+                    data-tutor-id="${t.id}"
+                    title="${isFavDetail ? 'Bỏ yêu thích' : 'Thêm yêu thích'}"
+                    style="flex: 1; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600;
+                            border: 1px solid ${isFavDetail ? '#fecaca' : '#e2e8f0'};
+                            background: ${isFavDetail ? '#fff1f2' : '#fff'};
+                            color: ${isFavDetail ? '#ef4444' : '#64748b'};
+                            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+                            transition: all 0.2s;">
+              <i id="icon-detail-wishlist" class="${isFavDetail ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+              <span id="text-detail-wishlist">${isFavDetail ? 'Đã lưu' : 'Yêu thích'}</span>
+            </button>
+            <%-- Giỏ hàng: Cart --%>
+            <button id="btn-detail-cart"
+                    data-tutor-id="${t.id}"
+                    style="flex: 1; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600;
+                            border: none; cursor: pointer;
+                            background: ${isInCartDetail ? '#475569' : '#ccfbf1'};
+                            color: ${isInCartDetail ? '#fff' : '#0d9488'};
+                            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+                            transition: all 0.2s;">
+              <i id="icon-detail-cart" class="${isInCartDetail ? 'fa-solid fa-check-double' : 'fa-solid fa-cart-plus'}"></i>
+              <span id="text-detail-cart">${isInCartDetail ? 'Đã chọn' : 'Vào giỏ'}</span>
+            </button>
+          </div>
           <%-- Nút Trao đổi --%>
-          <a href="${pageContext.request.contextPath}/chat?tutorId=${t.id}"
-             style="width: 100%; padding: 14px; margin-top: 10px;
-          font-size: 15px; font-weight: 600; border-radius: 8px; border: 1px solid #0d9488;
-          color: #0d9488; background: transparent; text-decoration: none;
-          display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <button id="btn-contact-tutor"
+                  data-phone="${tutorPhone}"
+                  data-email="${tutorEmail}"
+                  style="
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid #0d9488;
+            color: #0d9488;
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        ">
+            <i class="fa-solid fa-comments"></i>
             Trao đổi ngay
-          </a>
+          </button>
         </div>
 
         <%-- KHỐI BÊN PHẢI: MÔ TẢ ĐẶC TÍNH VÀ CẤU HÌNH CHI TIẾT CỦA GIA SƯ --%>
@@ -324,6 +400,474 @@
       </div>
     </section>
   </div>
+  <%-- ===== POPUP XÁC NHẬN THUÊ GIA SƯ ===== --%>
+  <div id="hire-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
+     z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:32px; max-width:420px; width:90%;
+                box-shadow:0 20px 40px rgba(0,0,0,0.15); position:relative;">
+
+      <%-- Nút X đóng --%>
+      <button onclick="closeHireModal()" style="position:absolute; top:16px; right:16px; background:none;
+                border:none; font-size:20px; color:#94a3b8; cursor:pointer; line-height:1;">✕</button>
+
+      <%-- CASE 1: Chưa đăng nhập --%>
+      <div id="modal-not-logged-in" style="display:none; text-align:center;">
+        <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+        <h3 style="font-size:18px; font-weight:700; color:#0f172a; margin:0 0 8px;">Vui lòng đăng nhập</h3>
+        <p style="color:#64748b; font-size:14px; margin:0 0 24px;">Bạn cần đăng nhập tài khoản Phụ huynh để thuê gia sư.</p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <a href="${pageContext.request.contextPath}/login"
+             style="background:#0d9488; color:#fff; padding:10px 24px; border-radius:8px;
+                          font-weight:600; text-decoration:none; font-size:14px;">Đăng nhập ngay</a>
+          <button onclick="closeHireModal()" style="background:#f1f5f9; color:#475569; padding:10px 24px;
+                        border-radius:8px; font-weight:600; border:none; cursor:pointer; font-size:14px;">Đóng</button>
+        </div>
+      </div>
+        <%-- CASE 2: Thiếu tiền --%>
+        <div id="modal-insufficient" style="display:none; text-align:center;">
+          <div style="font-size:48px; margin-bottom:16px;">💸</div>
+          <h3 style="font-size:18px; font-weight:700; color:#0f172a; margin:0 0 8px;">Số dư không đủ</h3>
+          <p style="color:#64748b; font-size:14px; margin:0 0 8px;">Tổng học phí (<span id="modal-insufficient-sessions" style="font-weight:600;">0</span> buổi): <strong id="modal-tutor-price" style="color:#ef4444;"></strong></p>
+          <p style="color:#64748b; font-size:14px; margin:0 0 24px;">Số dư hiện tại: <strong id="modal-user-balance" style="color:#64748b;"></strong></p>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <a href="${pageContext.request.contextPath}/parent/profile"
+               style="background:#0d9488; color:#fff; padding:10px 24px; border-radius:8px;
+                    font-weight:600; text-decoration:none; font-size:14px;">Nạp ví ngay</a>
+            <button onclick="closeHireModal()" style="background:#f1f5f9; color:#475569; padding:10px 24px;
+                  border-radius:8px; font-weight:600; border:none; cursor:pointer; font-size:14px;">Đóng</button>
+          </div>
+        </div>
+
+        <%-- CASE 3: Đủ tiền — xác nhận --%>
+        <div id="modal-confirm" style="display:none;">
+          <div style="text-align:center; margin-bottom:20px;">
+            <div style="font-size:48px; margin-bottom:12px;">✅</div>
+            <h3 style="font-size:18px; font-weight:700; color:#0f172a; margin:0 0 4px;">Xác nhận thuê gia sư</h3>
+            <p style="color:#64748b; font-size:13px; margin:0;">Hãy kiểm tra thông tin trước khi xác nhận</p>
+          </div>
+          <div style="background:#f8fafc; border-radius:10px; padding:16px; margin-bottom:20px;
+                  border:1px solid #e2e8f0; font-size:14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#64748b;">Gia sư</span>
+              <span style="font-weight:600; color:#0f172a;" id="modal-confirm-name"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:#64748b;" id="modal-confirm-session-label">Tổng học phí (0 buổi)</span>
+              <span style="font-weight:700; color:#0d9488;" id="modal-confirm-price"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed #e2e8f0; padding-top:10px;">
+              <span style="color:#64748b;">Số dư sau khi thuê</span>
+              <span style="font-weight:600; color:#334155;" id="modal-confirm-remaining"></span>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button id="btn-confirm-hire" onclick="executeHire()"
+                    style="flex:1; background:#0d9488; color:#fff; padding:12px; border-radius:8px;
+                         font-weight:700; border:none; cursor:pointer; font-size:14px;
+                         display:flex; align-items:center; justify-content:center; gap:6px;">
+              <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+              </svg>
+              Xác nhận thuê
+            </button>
+            <button onclick="closeHireModal()" style="flex:1; background:#f1f5f9; color:#475569; padding:12px;
+                  border-radius:8px; font-weight:600; border:none; cursor:pointer; font-size:14px;">Huỷ bỏ</button>
+          </div>
+        </div>
+
+    </div>
+  </div>
+  <div id="login-prompt-modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; width: 350px; text-align: center;">
+      <h3 style="margin-top:0;">Bạn cần đăng nhập</h3>
+      <p style="color: #64748b;">Vui lòng đăng nhập để thực hiện tính năng này.</p>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="closeLoginModal()" style="flex:1; padding: 10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Hủy</button>
+        <a href="${pageContext.request.contextPath}/login" style="flex:1; padding: 10px; background:#0d9488; color:white; text-decoration:none; border-radius:6px;">Đăng nhập</a>
+      </div>
+    </div>
+  </div>
+  <div id="schedule-select-modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; width: 400px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; color:#0d9488; font-size: 18px; font-weight: 700;">Chọn khung giờ học</h3>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 15px;">Vui lòng chọn các buổi học mong muốn của bạn với gia sư này.</p>
+
+      <div id="modal-schedule-list" style="text-align: left; margin: 20px 0; display: flex; flex-direction: column; gap: 10px;">
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 25px;">
+        <button onclick="closeScheduleModal()" style="flex:1; padding: 11px; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; border-radius:6px; cursor:pointer; font-weight:600;">Hủy</button>
+        <button id="btn-submit-cart-schedule" style="flex:1; padding: 11px; background:#0d9488; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Xác nhận chọn</button>
+      </div>
+    </div>
+  </div>
+  <div id="contact-modal"
+       style="display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.5);
+            z-index:99999;
+            justify-content:center;
+            align-items:center;">
+
+    <div style="background:#fff;
+                width:400px;
+                max-width:90%;
+                padding:24px;
+                border-radius:12px;
+                position:relative;">
+
+      <button onclick="closeContactModal()"
+              style="position:absolute;
+                       top:12px;
+                       right:12px;
+                       border:none;
+                       background:none;
+                       cursor:pointer;
+                       font-size:18px;">
+        ✕
+      </button>
+
+      <h3 style="margin-top:0;color:#0f172a;">
+        Thông tin liên hệ gia sư
+      </h3>
+
+      <div style="margin-top:20px;">
+        <p>
+          <strong>Số điện thoại:</strong>
+          <span id="contact-phone"></span>
+        </p>
+
+        <p>
+          <strong>Email:</strong>
+          <span id="contact-email"></span>
+        </p>
+      </div>
+    </div>
+  </div>
+  <script>
+    let currentTutorIdForCart = null;
+    let currentCartButton = null;
+    let originalCartHTML = '';
+
+    function closeScheduleModal() {
+      document.getElementById('schedule-select-modal').style.display = 'none';
+    }
+
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+      button.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Kiểm tra biến đăng nhập hệ thống của bạn
+        if (typeof IS_LOGGED_IN !== 'undefined' && !IS_LOGGED_IN) {
+          // Nếu có modal thông báo đăng nhập thì bật lên
+          const loginAlert = document.getElementById('your-login-alert-modal-id');
+          if (loginAlert) loginAlert.style.display = 'flex';
+          return;
+        }
+
+        currentTutorIdForCart = this.getAttribute('data-tutor-id');
+        currentCartButton = this;
+        originalCartHTML = this.innerHTML;
+
+        // Nếu trạng thái đang là "Đã chọn", nhấn lại nghĩa là muốn Xóa khỏi giỏ hàng
+        if (this.innerHTML.includes('Đã chọn')) {
+          executeToggleCart(currentTutorIdForCart, '');
+          return;
+        }
+
+        // Gọi API lấy lịch học từ TutorScheduleAPI
+        fetch('${pageContext.request.contextPath}/api/tutor/schedules?tutorId=' + currentTutorIdForCart)
+                .then(res => res.json())
+                .then(data => {
+                  const listContainer = document.getElementById('modal-schedule-list');
+                  listContainer.innerHTML = ''; // Xóa sạch dữ liệu cũ cũ
+
+                  if (!data.all || data.all.length === 0) {
+                    listContainer.innerHTML = '<p style="color:#ef4444; text-align:center; font-size:14px; padding: 10px;">⚠️ Gia sư này chưa đăng ký lịch trống!</p>';
+                    return;
+                  }
+
+                  // Render danh sách checkbox - ĐÃ SỬA: Thêm dấu \ trước $ để tránh xung đột JSP EL
+                  data.all.forEach(sched => {
+                    const cleanSched = sched.trim();
+                    let isDisabled = data.busy.includes(cleanSched);
+
+                    const itemLabel = document.createElement('label');
+                    itemLabel.style.cssText = 'display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer; font-size:14px; transition: all 0.2s;';
+
+                    let statusBadge = '';
+                    if (isDisabled) {
+                      statusBadge = ' <span style="margin-left:auto; color:#ef4444; font-weight:600; font-size:12px; background:#fef2f2; padding:2px 6px; border-radius:4px;">Đã thuê</span>';
+                      itemLabel.style.background = '#f8fafc';
+                      itemLabel.style.color = '#94a3b8';
+                      itemLabel.style.cursor = 'not-allowed';
+                    }
+
+                    // Lưu ý các dấu \${} bên dưới để không bị JSP nuốt chữ
+                    itemLabel.innerHTML = `
+                        <input type="checkbox" class="popup-schedule-cb" value="\${cleanSched}"
+                               style="width:16px; height:16px; accent-color:#0d9488;"
+                               \${isDisabled ? 'disabled' : ''}>
+                        <span style="font-weight:500; color: #334155;">\${cleanSched}</span>
+                        \${statusBadge}
+                    `;
+                    listContainer.appendChild(itemLabel);
+                  });
+
+                  // Bật modal popup chọn lịch học lên
+                  document.getElementById('schedule-select-modal').style.display = 'flex';
+                })
+                .catch(err => console.error("Lỗi lấy lịch học từ API:", err));
+      });
+    });
+
+    // Bắt sự kiện nút xác nhận bên trong popup khi phụ huynh chọn xong lịch
+    document.getElementById('btn-submit-cart-schedule').addEventListener('click', function() {
+      const checkedBoxes = document.querySelectorAll('.popup-schedule-cb:checked');
+      if (checkedBoxes.length === 0) {
+        alert('⚠️ Bạn phải chọn ít nhất một lịch học để thêm vào giỏ!');
+        return;
+      }
+
+      // Ghép các ô checkbox được tick thành chuỗi: "Sáng Thứ 2, Chiều Thứ 5"
+      const selectedSchedules = Array.from(checkedBoxes).map(cb => cb.value).join(', ');
+      closeScheduleModal();
+
+      // Đẩy dữ liệu sang CartServlet xử lý logic
+      executeToggleCart(currentTutorIdForCart, selectedSchedules);
+    });
+
+    function executeToggleCart(tutorId, scheduleStr) {
+      if (currentCartButton) {
+        currentCartButton.disabled = true;
+        currentCartButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+      }
+
+      fetch('${pageContext.request.contextPath}/cart/toggle?tutorId=' + tutorId + '&schedule=' + encodeURIComponent(scheduleStr), {
+        method: 'POST'
+      })
+              .then(res => res.json())
+              .then(data => {
+                if (currentCartButton) currentCartButton.disabled = false;
+
+                if (data.status === 'added') {
+                  // Thay đổi giao diện nút sang trạng thái "Đã chọn"
+                  currentCartButton.style.background = '#475569';
+                  currentCartButton.innerHTML = '<i class="fa-solid fa-check-double"></i> Đã chọn';
+
+                  // Cập nhật số lượng item trên badge giỏ hàng của thanh Header nếu có
+                  const cartBadge = document.getElementById('cart-badge-count');
+                  if (cartBadge && data.total !== undefined) cartBadge.innerText = data.total;
+
+                } else if (data.status === 'removed') {
+                  // Khôi phục lại trạng thái nút gốc khi xóa khỏi giỏ hàng
+                  currentCartButton.style.background = '#0d9488';
+                  currentCartButton.innerHTML = originalCartHTML;
+
+                  const cartBadge = document.getElementById('cart-badge-count');
+                  if (cartBadge && data.total !== undefined) cartBadge.innerText = data.total;
+
+                } else if (data.status === 'clash' || data.status === 'require_schedule') {
+                  // Trả nút về ban đầu và thông báo lỗi trùng lịch chéo từ BookingDAO phát hiện
+                  currentCartButton.innerHTML = originalCartHTML;
+                  alert(data.message);
+                } else {
+                  currentCartButton.innerHTML = originalCartHTML;
+                  alert('⚠️ Có lỗi xảy ra, vui lòng thử lại sau.');
+                }
+              })
+              .catch(err => {
+                if (currentCartButton) {
+                  currentCartButton.disabled = false;
+                  currentCartButton.innerHTML = originalCartHTML;
+                }
+                console.error("Lỗi hệ thống giỏ hàng:", err);
+              });
+    }
+    /// --- 1. CẤU HÌNH BIẾN TOÀN CỤC ---
+    var TUTOR_ID = ${t.id};
+    var TUTOR_NAME = '<c:out value="${t.fullName}"/>';
+    var TUTOR_PRICE = ${not empty t.hourlyRate ? t.hourlyRate : 0}; // Học phí gốc của 1 buổi
+    var IS_LOGGED_IN = ${not empty sessionScope.clientUser};
+    var USER_BALANCE = ${not empty sessionScope.clientUser ? sessionScope.clientUser.balance : 0};
+
+    // --- 2. CÁC HÀM TIỆN ÍCH ---
+    function formatVND(n) { return n.toLocaleString('vi-VN') + 'đ'; }
+
+    // --- ĐÃ SỬA: Chỉ đếm những ô ĐƯỢC TICK chọn và KHÔNG bị disabled ---
+    function getCheckedSessionsCount() {
+      return document.querySelectorAll('.tutor-schedule-checkbox:checked:not([disabled])').length;
+    }
+
+    // --- ĐÃ SỬA: Chỉ lấy chuỗi văn bản của những ô ĐƯỢC TICK chọn và KHÔNG bị disabled ---
+    function getCheckedSchedules() {
+      return Array.from(document.querySelectorAll('.tutor-schedule-checkbox:checked:not([disabled])'))
+              .map(cb => cb.value)
+              .join(', ');
+    }
+
+    function showToast(msg, type) {
+      const colors = { success:'#0d9488', error:'#ef4444', warning:'#f59e0b' };
+      const toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:' + (colors[type]||'#334155') +
+              ';color:#fff;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3500);
+    }
+
+    // --- 3. QUẢN LÝ MODAL ---
+    function showLoginModal() { document.getElementById('login-prompt-modal').style.display = 'flex'; }
+    function closeLoginModal() { document.getElementById('login-prompt-modal').style.display = 'none'; }
+    function closeHireModal() { document.getElementById('hire-modal-overlay').style.display = 'none'; }
+
+    // --- 4. HÀM THUÊ TRỰC TIẾP TỪ NÚT "THUÊ NGAY" ---
+    function openHireModal() {
+      if (!IS_LOGGED_IN) { showLoginModal(); return; }
+
+      var chosenSchedule = getCheckedSchedules();
+      var sessionCount = getCheckedSessionsCount();
+
+      if (!chosenSchedule || sessionCount === 0) {
+        showToast('⚠️ Vui lòng chọn ít nhất một buổi học!', 'warning');
+        return;
+      }
+
+      // 🔥 Tính toán tiền động dựa vào số buổi học được chọn
+      var totalCalculatedPrice = TUTOR_PRICE * sessionCount;
+
+      const overlay = document.getElementById('hire-modal-overlay');
+      // Ẩn toàn bộ các case nội dung modal trước khi hiển thị
+      document.getElementById('modal-not-logged-in').style.display = 'none';
+      document.getElementById('modal-insufficient').style.display = 'none';
+      document.getElementById('modal-confirm').style.display = 'none';
+
+      // Kiểm tra số dư với mức tổng tiền mới tính toán
+      if (USER_BALANCE < totalCalculatedPrice) {
+        document.getElementById('modal-insufficient-sessions').textContent = sessionCount;
+        document.getElementById('modal-tutor-price').textContent = formatVND(totalCalculatedPrice);
+        document.getElementById('modal-user-balance').textContent = formatVND(USER_BALANCE);
+        document.getElementById('modal-insufficient').style.display = 'block';
+      } else {
+        document.getElementById('modal-confirm-name').textContent = TUTOR_NAME;
+        document.getElementById('modal-confirm-session-label').textContent = 'Tổng học phí (' + sessionCount + ' buổi)';
+        document.getElementById('modal-confirm-price').textContent = formatVND(totalCalculatedPrice);
+        document.getElementById('modal-confirm-remaining').textContent = formatVND(USER_BALANCE - totalCalculatedPrice);
+        document.getElementById('modal-confirm').style.display = 'block';
+      }
+      overlay.style.display = 'flex';
+    }
+
+    // --- 5. LOGIC GỬI ĐƠN BOOKING TRỰC TIẾP LÊN SERVER ---
+    function executeHire() {
+      var chosenSchedule = getCheckedSchedules();
+      var btn = document.getElementById('btn-confirm-hire');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+      }
+
+      fetch('${pageContext.request.contextPath}/booking/hire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'tutorId=' + TUTOR_ID + '&schedule=' + encodeURIComponent(chosenSchedule)
+      })
+              .then(res => res.json())
+              .then(data => {
+                if (data.status === 'SUCCESS') {
+                  showToast('🎉 Thuê gia sư thành công!', 'success');
+                  setTimeout(() => {
+                    window.location.href = '${pageContext.request.contextPath}/parent/hired-tutors';
+                  }, 1500);
+                } else {
+                  // 🔥 ĐÃ SỬA: Chuyển toàn bộ mã lỗi hệ thống sang Tiếng Việt trực quan
+                  let errMsg = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+
+                  switch (data.status) {
+                    case 'ERR_ALREADY_HIRED':
+                      errMsg = 'Bạn đã có một hợp đồng lớp học đang hoạt động với gia sư này rồi!';
+                      break;
+                    case 'ERR_SCHEDULE_CLASH':
+                      errMsg = 'Lịch học bạn chọn đã bị trùng với lịch của người khác vừa thuê trước mất rồi!';
+                      break;
+                    case 'ERR_BALANCE_NOT_ENOUGH':
+                    case 'ERR_INSUFFICIENT_BALANCE':
+                      errMsg = 'Số dư tài khoản ví của bạn không đủ để thực hiện thanh toán!';
+                      break;
+                    case 'ERR_EMPTY_SCHEDULE':
+                      errMsg = 'Vui lòng chọn ít nhất một khung giờ trống trước khi xác nhận!';
+                      break;
+                    case 'ERR_TUTOR_NOT_FOUND':
+                      errMsg = 'Không tìm thấy thông tin gia sư này trên hệ thống!';
+                      break;
+                    case 'ERR_SYSTEM':
+                      errMsg = 'Hệ thống đang bận xử lý giao dịch, vui lòng thử lại sau ít phút.';
+                      break;
+                  }
+
+                  // Hiển thị thông báo tiếng Việt bằng Toast hoặc Alert tùy ông chọn
+                  alert('⚠️ Thông báo: ' + errMsg);
+
+                  if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> Xác nhận thuê';
+                  }
+                }
+              })
+              .catch(err => {
+                console.error("Lỗi API Hire:", err);
+                alert('❌ Lỗi kết nối hệ thống đường truyền. Vui lòng kiểm tra lại!');
+                if (btn) {
+                  btn.disabled = false;
+                  btn.innerHTML = 'Xác nhận thuê';
+                }
+              });
+    }
+
+    // --- 6. LOGIC THÊM VÀO GIỎ HÀNG (CART DETAIL) ---
+    document.addEventListener('DOMContentLoaded', function() {
+      var cartBtn = document.getElementById('btn-detail-cart');
+      if (cartBtn) {
+        cartBtn.addEventListener('click', function() {
+          if (!IS_LOGGED_IN) { showLoginModal(); return; }
+
+          var selected = getCheckedSchedules();
+          if (!selected) { showToast('⚠️ Vui lòng chọn lịch trước khi thêm vào giỏ!', 'warning'); return; }
+
+          fetch('${pageContext.request.contextPath}/cart/toggle?tutorId=' + TUTOR_ID + '&schedule=' + encodeURIComponent(selected), { method: 'POST' })
+                  .then(res => res.status === 401 ? (showLoginModal(), null) : res.json())
+                  .then(data => {
+                    if (!data) return;
+                    var icon = document.getElementById('icon-detail-cart');
+                    var text = document.getElementById('text-detail-cart');
+                    if (data.status === 'added') {
+                      icon.className = 'fa-solid fa-check-double'; text.textContent = 'Đã chọn';
+                      cartBtn.style.background = '#475569'; cartBtn.style.color = '#fff';
+                      showToast('🛒 Đã thêm gia sư kèm lịch vào giỏ hàng!', 'success');
+                    } else if (data.status === 'removed') {
+                      icon.className = 'fa-solid fa-cart-plus'; text.textContent = 'Vào giỏ';
+                      cartBtn.style.background = '#ccfbf1'; cartBtn.style.color = '#0d9488';
+                      showToast('🗑️ Đã xóa gia sư khỏi giỏ hàng.', 'info');
+                    } else if (data.status === 'clash') {
+                      showToast('❌ Lịch học vừa chọn đã bị trùng chéo!', 'error');
+                    }
+
+                    // Cập nhật lại số badge nhỏ trên giỏ hàng hệ thống thanh Header nhanh
+                    var globalBadge = document.getElementById('cart-badge-count');
+                    if (globalBadge && data.total !== undefined) globalBadge.innerText = data.total;
+                  });
+        });
+      }
+    });
+  </script>
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+
+
 </main>
 
 <jsp:include page="/views/common/footer.jsp" />
@@ -334,5 +878,140 @@
     if(!isNaN(val)) {
       el.textContent = val.toLocaleString('vi-VN');
     }
+  });
+  // ===== WISHLIST & CART CHO TUTOR-DETAIL =====
+  (function() {
+    // WISHLIST
+    var wishBtn = document.getElementById('btn-detail-wishlist');
+    if (wishBtn) {
+      wishBtn.addEventListener('click', function() {
+        // Kiểm tra đăng nhập qua biến toàn cục IS_LOGGED_IN
+        if (!IS_LOGGED_IN) { showLoginModal(); return; }
+
+        var tutorId = this.getAttribute('data-tutor-id');
+        var icon = document.getElementById('icon-detail-wishlist');
+        var text = document.getElementById('text-detail-wishlist');
+
+        fetch('${pageContext.request.contextPath}/parent/wishlist?tutorId=' + tutorId, { method: 'POST' })
+                .then(function(res) {
+                  if (res.status === 401) { showLoginModal(); return null; }
+                  return res.json();
+                })
+                .then(function(data) {
+                  if (!data) return;
+                  if (data.status === 'added') {
+                    icon.className = 'fa-solid fa-heart';
+                    text.textContent = 'Đã lưu';
+                    wishBtn.style.color = '#ef4444';
+                    wishBtn.style.borderColor = '#fecaca';
+                    wishBtn.style.background = '#fff1f2';
+                  } else if (data.status === 'removed') {
+                    icon.className = 'fa-regular fa-heart';
+                    text.textContent = 'Yêu thích';
+                    wishBtn.style.color = '#64748b';
+                    wishBtn.style.borderColor = '#e2e8f0';
+                    wishBtn.style.background = '#fff';
+                  }
+                })
+                .catch(function(e) { console.error('Wishlist error:', e); });
+      });
+    }
+
+    // CART
+    var cartBtn = document.getElementById('btn-detail-cart');
+    if (cartBtn) {
+      cartBtn.addEventListener('click', function() {
+        // 1. Kiểm tra đăng nhập bằng biến IS_LOGGED_IN
+        if (!IS_LOGGED_IN) { showLoginModal(); return; }
+
+        // 2. Validate lịch học (Bắt buộc chọn lịch trước khi thêm vào giỏ)
+        var selected = getCheckedSchedules();
+        if (!selected) { showToast('⚠️ Vui lòng chọn lịch trước khi thêm vào giỏ!', 'warning'); return; }
+
+        var tutorId = this.getAttribute('data-tutor-id');
+        var icon = document.getElementById('icon-detail-cart');
+        var text = document.getElementById('text-detail-cart');
+
+        fetch('${pageContext.request.contextPath}/cart/toggle?tutorId=' + tutorId + '&schedule=' + encodeURIComponent(selected), { method: 'POST' })
+                .then(function(res) {
+                  if (res.status === 401) { showLoginModal(); return null; }
+                  return res.json();
+                })
+                .then(function(data) {
+                  if (!data) return;
+                  if (data.status === 'added') {
+                    icon.className = 'fa-solid fa-check-double';
+                    text.textContent = 'Đã chọn';
+                    cartBtn.style.background = '#475569';
+                    cartBtn.style.color = '#fff';
+                  } else if (data.status === 'removed') {
+                    icon.className = 'fa-solid fa-cart-plus';
+                    text.textContent = 'Vào giỏ';
+                    cartBtn.style.background = '#ccfbf1';
+                    cartBtn.style.color = '#0d9488';
+                  }
+                })
+                .catch(function(e) { console.error('Cart error:', e); });
+      });
+    }
+  })();
+  function executeHire() {
+    var chosenSchedule = getCheckedSchedules(); // Hàm bạn đã có
+    if (!chosenSchedule) {
+      showToast('⚠️ Vui lòng chọn lịch học!', 'warning');
+      return;
+    }
+
+    var btn = document.getElementById('btn-confirm-hire');
+    btn.disabled = true; // Khóa nút để tránh spam
+
+    // Gửi đúng định dạng form-urlencoded
+    var params = 'tutorId=' + TUTOR_ID + '&schedule=' + encodeURIComponent(chosenSchedule);
+
+    fetch('${pageContext.request.contextPath}/booking/hire', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
+    })
+            .then(res => res.json())
+            .then(data => {
+              if (data.status === 'SUCCESS') {
+                alert('Thuê gia sư thành công!');
+                location.reload();
+              } else {
+                alert('Lỗi: ' + data.status);
+                btn.disabled = false; // Mở lại nút nếu lỗi
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              btn.disabled = false;
+            });
+  }
+  function closeContactModal() {
+    document.getElementById('contact-modal').style.display = 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const btnContact = document.getElementById('btn-contact-tutor');
+
+    if (btnContact) {
+
+      btnContact.addEventListener('click', function () {
+
+        const phone = this.dataset.phone;
+        const email = this.dataset.email;
+
+        document.getElementById('contact-phone').textContent =
+                phone || 'Chưa cập nhật';
+
+        document.getElementById('contact-email').textContent =
+                email || 'Chưa cập nhật';
+
+        document.getElementById('contact-modal').style.display = 'flex';
+      });
+    }
+
   });
 </script>

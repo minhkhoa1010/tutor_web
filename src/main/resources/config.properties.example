@@ -1,0 +1,61 @@
+# ==============================================================================
+#  GIA SƯ BÁ ĐẠO VN — SYSTEM CONFIGURATION TEMPLATE
+#  File: config.properties.example
+# ==============================================================================
+#
+#  HƯỚNG DẪN THIẾT LẬP:
+#    1. Sao chép file này thành "config.properties" trong cùng thư mục resources/
+#    2. Điền thông tin thực tế vào các trường có giá trị placeholder
+#
+#
+# ==============================================================================
+
+
+# ------------------------------------------------------------------------------
+#  [1] LƯU TRỮ ẢNH — CLOUDINARY
+#      Đăng ký tại: https://cloudinary.com
+# ------------------------------------------------------------------------------
+cloudinary.cloud_name   = YOUR_CLOUD_NAME
+cloudinary.api_key      = YOUR_API_KEY
+cloudinary.api_secret   = YOUR_API_SECRET
+
+
+# ------------------------------------------------------------------------------
+#  [2] ĐĂNG NHẬP XÃ HỘI — GOOGLE OAuth2
+#      Đăng ký tại: https://console.cloud.google.com
+# ------------------------------------------------------------------------------
+google.client.id        = YOUR_CLIENT_ID.apps.googleusercontent.com
+google.client.secret    = YOUR_CLIENT_SECRET
+google.redirect.uri     = http://localhost:8080/tutor_web_war_exploded/oauth2-callback?provider=google
+
+
+# ------------------------------------------------------------------------------
+#  [3] ĐĂNG NHẬP XÃ HỘI — FACEBOOK OAuth2
+#      Đăng ký tại: https://developers.facebook.com
+# ------------------------------------------------------------------------------
+facebook.client.id      = YOUR_FACEBOOK_APP_ID
+facebook.client.secret  = YOUR_FACEBOOK_APP_SECRET
+facebook.redirect.uri   = http://localhost:8080/tutor_web_war_exploded/oauth2-callback?provider=facebook
+
+
+# ------------------------------------------------------------------------------
+#  [4] CỔNG THANH TOÁN — MOMO SANDBOX
+#      Tài liệu: https://developers.momo.vn
+#
+#  THẺ TEST (ATM NAPAS):
+#    ┌─────┬──────────────────────┬──────────┬─────┬─────────────────────────┐
+#    │ STT │ Số thẻ               │ Hạn thẻ  │ OTP │ Kịch bản               │
+#    ├─────┼──────────────────────┼──────────┼─────┼─────────────────────────┤
+#    │  1  │ 9704 0000 0000 0018  │  03/07   │ OTP │ ✅ Thanh toán thành công │
+#    │  2  │ 9704 0000 0000 0026  │  03/07   │ OTP │ ❌ Thẻ bị khóa          │
+#    │  3  │ 9704 0000 0000 0034  │  03/07   │ OTP │ ❌ Nguồn tiền không đủ  │
+#    │  4  │ 9704 0000 0000 0042  │  03/07   │ OTP │ ❌ Vượt hạn mức thẻ     │
+#    └─────┴──────────────────────┴──────────┴─────┴─────────────────────────┘
+#    Tên chủ thẻ (tất cả): NGUYEN VAN A
+# ------------------------------------------------------------------------------
+momo.partner_code       = MOMO
+momo.access_key         = F8BBA842ECF85
+momo.secret_key         = K951B6PE1waDMi640xX08PD3vg6EkVlz
+momo.endpoint           = https://test-payment.momo.vn/v2/gateway/api/create
+momo.return_url         = http://localhost:8080/tutor_web_war_exploded/parent/momo-return
+

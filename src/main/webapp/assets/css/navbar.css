@@ -57,7 +57,22 @@
     display: flex;
     gap: 10px;
 }
+.nav-cart-badge{
+    min-width:22px;
+    height:22px;
 
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#ef4444;
+    color:white;
+
+    border-radius:999px;
+
+    font-size:11px;
+    font-weight:700;
+}
 .btn {
     padding: 10px 18px;
     border-radius: 999px;
@@ -83,17 +98,9 @@
     border: 1px solid #cbd5e1;
     color: var(--ink-700);
 }
-
-@media (max-width: 960px) {
-    .nav-links {
-        display: none;
-    }
-}
-
 /* ==========================================================================
-   USER PROFILE DROPDOWN STYLES (Sửa lỗi biến mất nhanh)
+   USER PROFILE DROPDOWN STYLES (Sửa lỗi biến mất nhanh & Tối ưu Giao diện)
    ========================================================================== */
-
 .nav-user-dropdown {
     position: relative;
     display: inline-block;
@@ -155,14 +162,14 @@
     display: none;
     position: absolute;
     right: 0;
-    top: 100%; /* Đưa sát lên bằng mép dưới của trigger */
+    top: 100%;
     background: var(--white);
-    min-width: 210px;
+    min-width: 230px; /* Tăng nhẹ để chứa thông tin ví không bị kích chữ */
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     padding: 8px;
-    margin: 8px 0 0 0; /* Tạo khoảng cách hiển thị nhưng không làm mất hitbox bắt chuột */
+    margin: 8px 0 0 0;
     list-style: none;
     z-index: 100;
     animation: slideDown 0.15s ease-out;
@@ -214,7 +221,7 @@
     font-size: 10px;
     font-weight: 800;
     padding: 4px 14px;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     letter-spacing: 0.05em;
     user-select: none;
 }
@@ -230,7 +237,124 @@
     background: #fef2f2;
     color: #dc2626;
 }
+.dropdown-menu li a i{
+    width:20px;
+    margin-right:10px;
+    text-align:center;
+    font-size:14px;
+}
+/* ==========================================================================
+   TỐI ƯU CÁC THÀNH PHẦN VÍ VÀ GIỎ HÀNG (MỚI)
+   ========================================================================== */
+/* Khung hiển thị thông tin Ví cho cả USER và TUTOR */
+.wallet-nav-item {
+    padding: 10px 12px;
+    background: #f8fafc; /* Đồng bộ màu với nền của user-trigger */
+    border: 1px solid #e2e8f0;
+    border-radius: 10px; /* Bo góc mềm mại giống các thẻ a */
+    margin: 4px 6px 8px 6px; /* Cách đều lề trong dropdown */
+}
 
+.wallet-nav-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-700);
+    margin-bottom: 6px;
+}
+
+/* Màu số dư linh hoạt theo class */
+.wallet-nav-box .text-primary {
+    color: #3b82f6 !important; /* Xanh lịch lãm cho Phụ huynh */
+    font-weight: 700;
+}
+
+.wallet-nav-box .text-success {
+    color: #10b981 !important; /* Xanh lá cây tiền tài cho Gia sư */
+    font-weight: 700;
+}
+
+/* Nút nạp tiền thiết kế lại dạng pill cực gọn */
+.nav-deposit-btn {
+    display: block;
+    text-align: center;
+    background: var(--navy-900); /* Dùng chung mã màu thương hiệu của bạn */
+    color: var(--white) !important;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 0;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.nav-deposit-btn:hover {
+    background: var(--navy-700);
+}
+
+/* Giỏ hàng căn đều 2 bên */
+.nav-cart-link {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Badge số lượng gia sư đỏ nổi bật */
+.nav-cart-badge {
+    background: #ef4444;
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    line-height: 1;
+}
+/* Menu List Container */
+.nav-menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Các item menu */
+.nav-item {
+    margin-bottom: 6px;
+}
+
+/* Link Menu */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease; /* Hiệu ứng mượt */
+}
+
+/* Hiệu ứng Hover */
+.nav-link:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Trạng thái Active (Đang ở trang đó) */
+.nav-link.active {
+    background-color: #ecfdf5; /* Xanh mint nhạt */
+    color: #059669; /* Xanh lá đậm */
+    font-weight: 600;
+}
+
+/* Style cho Icon */
+.nav-icon {
+    width: 20px;
+    height: 20px;
+}
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -241,3 +365,4 @@
         transform: translateY(0);
     }
 }
+

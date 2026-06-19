@@ -13,7 +13,7 @@ public class AdminSettingsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Chuyển tiếp luồng giao diện trực tiếp đến trang JSP cài đặt cấu hình
-        request.getRequestDispatcher("/views/admin/settings.jsp").forward(request, response);
+        request.getRequestDispatcher("/views/admin/settings-profile.jsp").forward(request, response);
     }
 
     @Override

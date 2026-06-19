@@ -14,9 +14,11 @@ import vn.edu.nlu.fit.tutorweb.dto.SubjectCard;
 import vn.edu.nlu.fit.tutorweb.entity.Review;
 import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
 import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+import vn.edu.nlu.fit.tutorweb.service.SavedTutorService; // Khai báo Import Service mới
 import vn.edu.nlu.fit.tutorweb.utils.SubjectUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/home")
@@ -24,6 +26,7 @@ public class HomeServlet extends HttpServlet {
 
     private final TutorDAO tutorDAO = new TutorDAO();
     private final ReviewDAO reviewDAO = new ReviewDAO();
+    private final SavedTutorService savedTutorService = new SavedTutorService(); // Khởi tạo tầng Service xử lý Lưu gia sư
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -83,6 +86,23 @@ public class HomeServlet extends HttpServlet {
 
         /*
          * ==========================
+         * ĐỒNG BỘ TRẠNG THÁI BOOKMARK (NEW)
+         * ==========================
+         */
+        List<Long> savedTutorIds = new ArrayList<>();
+        if (user != null && user.hasRole("USER")) {
+            try {
+                // Lấy về danh sách các tutorId mà tài khoản phụ huynh này đã lưu
+                savedTutorIds = savedTutorService.getSavedTutorIdsByParentId(user.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // Đẩy thẳng mảng ID sang index.jsp để thẻ JSTL so sánh bằng phương thức .contains()
+        req.setAttribute("savedTutorIds", savedTutorIds);
+
+        /*
+         * ==========================
          * SUBJECT CARD
          * ==========================
          */
@@ -124,6 +144,8 @@ public class HomeServlet extends HttpServlet {
                         + subjectCards.size()
                         + " | Reviews: "
                         + featuredReviews.size()
+                        + " | SavedIds: "
+                        + savedTutorIds.size()
         );
 
         req.getRequestDispatcher("/index.jsp")

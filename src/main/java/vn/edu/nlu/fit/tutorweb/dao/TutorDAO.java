@@ -2,6 +2,7 @@ package vn.edu.nlu.fit.tutorweb.dao;
 
 import vn.edu.nlu.fit.tutorweb.db.DBConnect;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
+import vn.edu.nlu.fit.tutorweb.entity.Booking;
 import vn.edu.nlu.fit.tutorweb.entity.Review;
 import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
 
@@ -21,6 +22,7 @@ public class TutorDAO {
         u.fullname AS fullName,
         t.gender AS gender,
         t.qualification AS degreeLevel,
+        t.hourly_rate AS hourlyRate,
         t.hourly_rate AS minRate,
         t.teaching_subject AS subjects,
         t.teaching_grade AS grades,
@@ -45,6 +47,7 @@ public class TutorDAO {
                                     rs.getString("fullName"),
                                     rs.getString("gender"),
                                     rs.getString("degreeLevel"),
+
                                     rs.getObject("minRate") != null ? rs.getInt("minRate") : null,
                                     null,
                                     rs.getString("subjects"),
@@ -54,6 +57,7 @@ public class TutorDAO {
                                     rs.getString("portraitUrl"),
                                     new ArrayList<>(),
                                     new ArrayList<>(),
+                                    rs.getObject("hourlyRate") != null ? rs.getInt("hourlyRate") : 0, // SỬA: Lấy hourlyRate từ SQL
                                     rs.getString("birthDate"),
                                     rs.getString("school"),
                                     rs.getString("major")
@@ -68,7 +72,21 @@ public class TutorDAO {
                         .orElse(null)
         );
     }
+    public Long getUserIdByTutorId(long tutorId) {
+        String sql = """
+        SELECT user_id
+        FROM tutors
+        WHERE id = :tutorId
+    """;
 
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("tutorId", tutorId)
+                        .mapTo(Long.class)
+                        .findOne()
+                        .orElse(null)
+        );
+    }
     /**
      * Lấy danh sách gia sư tiêu biểu hiển thị ở Trang chủ
      */
@@ -388,6 +406,144 @@ public class TutorDAO {
             """)
                         .mapTo(String.class)
                         .list()
+        );
+    }
+
+    /**
+     * 🌟 HÀM MỚI BỔ SUNG: Lấy thông tin tóm tắt của 1 gia sư theo ID phục vụ cho Giỏ hàng tạm thời
+     */
+    public TutorSearchResult getTutorSearchResultById(long tutorId) {
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("""
+                SELECT 
+                    t.id            AS tutorId,
+                    u.fullname      AS fullName,
+                    u.avatar_url    AS avatarUrl,
+                    t.qualification AS qualification,
+                    t.school        AS school,
+                    t.major         AS major,
+                    t.teaching_subject AS teachingSubject,
+                    t.teaching_grade   AS teachingGrade,
+                    t.teaching_area    AS teachingArea,
+                    t.experience_summary AS experienceSummary,
+                    t.hourly_rate      AS hourlyRate,
+                    t.rating_average   AS ratingAverage,
+                    t.birth_date       AS birthDate,
+                    (SELECT GROUP_CONCAT(ts.slot_name SEPARATOR ', ') 
+                     FROM tutor_schedules tsch
+                     JOIN time_slots ts ON tsch.time_slot_id = ts.id
+                     WHERE tsch.tutor_id = t.id) AS availableSchedules
+                FROM tutors t
+                JOIN users u ON t.user_id = u.id
+                WHERE t.id = :tutorId
+            """)
+                        .bind("tutorId", tutorId)
+                        .mapToBean(TutorSearchResult.class)
+                        .findOne()
+                        .orElse(null)
+        );
+    }
+    public List<Booking> getBookingsByParent(long parentId) {
+        // Định nghĩa danh sách các trạng thái cần hiển thị
+        List<String> validStatuses = List.of(
+                "ACTIVE", "PAID", "PENDING_COMPLETED", "DISPUTED", "COMPLETED", "REFUNDED"
+        );
+
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("""
+            SELECT * FROM bookings 
+            WHERE parent_id = :parentId 
+            AND status IN (<statuses>)
+            ORDER BY created_at DESC
+        """)
+                        .bind("parentId", parentId)
+                        .bindList("statuses", validStatuses) // JDBI sẽ tự động xử lý chuỗi IN ('...', '...')
+                        .mapToBean(Booking.class)
+                        .list()
+        );
+    }
+    /**
+     * Cập nhật thông tin cơ bản / Hồ sơ năng lực
+     */
+    public void updateTutorProfile(long tutorId, String school, String major, String experienceSummary) {
+        DBConnect.get().withHandle(h ->
+                h.createUpdate("""
+                UPDATE tutors 
+                SET school = :school, major = :major, experience_summary = :experienceSummary 
+                WHERE id = :tutorId
+            """)
+                        .bind("tutorId", tutorId)
+                        .bind("school", school)
+                        .bind("major", major)
+                        .bind("experienceSummary", experienceSummary)
+                        .execute()
+        );
+    }
+
+    /**
+     * Cập nhật thiết lập học phí theo giờ
+     */
+    public void updateHourlyRate(long tutorId, int hourlyRate) {
+        DBConnect.get().withHandle(h ->
+                h.createUpdate("UPDATE tutors SET hourly_rate = :hourlyRate WHERE id = :tutorId")
+                        .bind("tutorId", tutorId)
+                        .bind("hourlyRate", hourlyRate)
+                        .execute()
+        );
+    }
+
+    /**
+     * Cập nhật đa lịch học trống (Xóa hết lịch cũ của gia sư rồi chèn loạt lịch mới chọn vào)
+     */
+    public void updateTutorSchedules(long tutorId, List<String> newSlotNames) {
+        DBConnect.get().useTransaction(handle -> {
+            // 1. Kiểm tra: Chỉ chặn nếu khung giờ bị xóa NẰM TRONG chuỗi schedule của đơn hàng đang chạy
+            boolean isBlocking = handle.createQuery("""
+            SELECT COUNT(*) 
+            FROM bookings b
+            JOIN tutor_schedules ts ON b.tutor_id = ts.tutor_id
+            JOIN time_slots slot ON ts.time_slot_id = slot.id
+            WHERE b.tutor_id = :tutorId 
+              AND b.status IN ('ACTIVE', 'PAID', 'PENDING_COMPLETED')
+              AND slot.slot_name NOT IN (<newSlotNames>)
+              AND FIND_IN_SET(slot.slot_name, REPLACE(b.schedule, ', ', ',')) > 0
+        """)
+                    .bind("tutorId", tutorId)
+                    .bindList("newSlotNames", newSlotNames.isEmpty() ? List.of("") : newSlotNames)
+                    .mapTo(Integer.class)
+                    .one() > 0;
+
+            if (isBlocking) {
+                throw new RuntimeException("KHÔNG THỂ CẬP NHẬT: Khung giờ bạn muốn xóa hiện đang có lớp học diễn ra hoặc chờ xác nhận!");
+            }
+
+            // 2. Nếu hợp lệ, thực hiện xóa cũ - chèn mới
+            handle.createUpdate("DELETE FROM tutor_schedules WHERE tutor_id = :tutorId")
+                    .bind("tutorId", tutorId)
+                    .execute();
+
+            if (newSlotNames != null && !newSlotNames.isEmpty()) {
+                var batch = handle.prepareBatch("""
+                INSERT INTO tutor_schedules (tutor_id, time_slot_id) 
+                VALUES (:tutorId, (SELECT id FROM time_slots WHERE slot_name = :slotName LIMIT 1))
+            """);
+                for (String name : newSlotNames) {
+                    batch.bind("tutorId", tutorId).bind("slotName", name).add();
+                }
+                batch.execute();
+            }
+        });
+    }
+    /**
+     * Lấy tutorId dựa vào userId từ session đăng nhập
+     */
+    public Long getTutorIdByUserId(long userId) {
+        return DBConnect.get().withHandle(h ->
+                h.createQuery("SELECT id FROM tutors WHERE user_id = :userId")
+                        .bind("userId", userId)
+                        .mapTo(Long.class)
+                        .findOne()
+                        .orElse(null)
         );
     }
 }

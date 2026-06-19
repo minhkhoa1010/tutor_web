@@ -9,7 +9,7 @@ import vn.edu.nlu.fit.tutorweb.entity.UserSession;
 import java.io.IOException;
 
 @WebServlet("/parent/change-password")
-public class ChangePasswordServlet extends HttpServlet {
+public class ParentChangePasswordServlet extends HttpServlet {
     private final UserAuthDAO authDAO = new UserAuthDAO();
 
     @Override

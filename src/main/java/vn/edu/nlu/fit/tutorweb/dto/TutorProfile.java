@@ -17,7 +17,7 @@ public class TutorProfile {
     private final String portraitUrl;
     private final List<String> degreeUrls;
     private final List<String> idCardUrls;
-
+    private Integer hourlyRate;
     // BỔ SUNG THÊM 3 TRƯỜNG NÀY
     private final String birthDate;
     private final String school;
@@ -36,7 +36,7 @@ public class TutorProfile {
     public TutorProfile(long id, String fullName, String gender, String degreeLevel,
                         Integer minRate, Integer maxRate, String subjects, String grades,
                         String provinceName, String districtName, String portraitUrl,
-                        List<String> degreeUrls, List<String> idCardUrls,
+                        List<String> degreeUrls, List<String> idCardUrls, Integer hourlyRate,
                         String birthDate, String school, String major) { // Nhận thêm 3 tham số cuối
         this.id = id;
         this.fullName = fullName;
@@ -51,6 +51,7 @@ public class TutorProfile {
         this.portraitUrl = portraitUrl;
         this.degreeUrls = degreeUrls != null ? degreeUrls : new ArrayList<>();
         this.idCardUrls = idCardUrls != null ? idCardUrls : new ArrayList<>();
+        this.hourlyRate = hourlyRate;
 
         // Gán giá trị
         this.birthDate = birthDate;
@@ -77,7 +78,15 @@ public class TutorProfile {
     public String getBirthDate() { return birthDate; }
     public String getSchool() { return school; }
     public String getMajor() { return major; }
+    // 2. Thêm phương thức Getter
+    public Integer getHourlyRate() {
+        return hourlyRate;
+    }
 
+    // 3. Thêm Setter (nếu cần cập nhật từ Servlet)
+    public void setHourlyRate(Integer hourlyRate) {
+        this.hourlyRate = hourlyRate;
+    }
     // --- Các hàm Label Helper ---
     public String getGenderLabel() {
         if (gender == null) return "Chưa cập nhật";

@@ -1,8 +1,8 @@
 package vn.edu.nlu.fit.tutorweb.controller;
 
-import vn.edu.nlu.fit.tutorweb.dao.TutorDAO;
-import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
-import vn.edu.nlu.fit.tutorweb.entity.UserSession; // Import class UserSession của bạn
+import vn.edu.nlu.fit.tutorweb.dao.BookingDAO;
+import vn.edu.nlu.fit.tutorweb.entity.Booking;
+import vn.edu.nlu.fit.tutorweb.entity.UserSession;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,7 +12,9 @@ import java.util.List;
 
 @WebServlet("/parent/hired")
 public class ParentHiredServlet extends HttpServlet {
-    private final TutorDAO tutorDAO = new TutorDAO();
+
+    // Sử dụng BookingDAO để lấy danh sách
+    private final BookingDAO bookingDAO = new BookingDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,8 +28,20 @@ public class ParentHiredServlet extends HttpServlet {
             return;
         }
 
-        // Lấy danh sách
-        List<TutorSearchResult> hiredTutors = tutorDAO.getHiredTutorsByParentId(user.getId());
+        // --- DEBUG ---
+        System.out.println("DEBUG: Dang lay booking cho parentId: " + user.getId());
+
+        List<Booking> hiredTutors = bookingDAO.getHiredTutorsByParentId(user.getId());
+
+        if (hiredTutors != null) {
+            System.out.println("DEBUG: So luong booking tim thay: " + hiredTutors.size());
+            for (Booking b : hiredTutors) {
+                System.out.println("DEBUG: Booking ID: " + b.getId() + " - TutorName: " + b.getTutorName());
+            }
+        } else {
+            System.out.println("DEBUG: List tra ve bi NULL!");
+        }
+        // -------------
 
         request.setAttribute("hiredTutors", hiredTutors);
         request.getRequestDispatcher("/views/parent/hired-tutors.jsp").forward(request, response);

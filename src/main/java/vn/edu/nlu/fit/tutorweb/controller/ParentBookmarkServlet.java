@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @WebServlet("/parent/wishlist")
-public class BookmarkServlet extends HttpServlet {
+public class ParentBookmarkServlet extends HttpServlet {
     private final SavedTutorService savedTutorService = new SavedTutorService();
     private final Gson gson = new Gson();
 

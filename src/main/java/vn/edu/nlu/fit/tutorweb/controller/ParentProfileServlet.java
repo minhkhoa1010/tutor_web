@@ -21,7 +21,7 @@ import java.util.Map;
         maxFileSize = 1024 * 1024 * 10,       // 10MB
         maxRequestSize = 1024 * 1024 * 50     // 50MB
 )
-public class ParentProfileController extends HttpServlet {
+public class ParentProfileServlet extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
 
@@ -61,36 +61,49 @@ public class ParentProfileController extends HttpServlet {
         String actionType = request.getParameter("actionType");
 
         // 1. TRƯỜNG HỢP: UPLOAD AVATAR LÊN CLOUDINARY
+        // 1. TRƯỜNG HỢP: UPLOAD AVATAR LÊN CLOUDINARY
         if ("updateAvatar".equals(actionType)) {
             try {
                 Part part = request.getPart("avatarFile");
                 if (part != null && part.getSize() > 0) {
 
-                    // --- BƯỚC 1: XÓA ẢNH CŨ (NẾU CÓ) ---
+                    // BƯỚC 1: XÓA ẢNH CŨ TRÊN CLOUDINARY
+                    // Chỉ xóa nếu đó không phải là ảnh mặc định
                     String oldAvatarUrl = userSession.getAvatarUrl();
                     if (oldAvatarUrl != null && !oldAvatarUrl.contains("default-avatar.png") && !oldAvatarUrl.isEmpty()) {
                         try {
-                            String publicId = extractPublicId(oldAvatarUrl);
-                            CloudinaryConfig.getCloudinary().uploader().destroy(publicId, ObjectUtils.emptyMap());
+                            String publicId = CloudinaryConfig.getPublicIdFromUrl(oldAvatarUrl);
+                            if (publicId != null) {
+                                CloudinaryConfig.getCloudinary().uploader().destroy(publicId, ObjectUtils.emptyMap());
+                                System.out.println("Đã xóa ảnh cũ thành công: " + publicId);
+                            }
                         } catch (Exception e) {
-                            System.err.println("Không xóa được ảnh cũ trên Cloudinary: " + e.getMessage());
+                            // Lỗi xóa ảnh cũ không nên làm gián đoạn việc upload ảnh mới
+                            System.err.println("Không xóa được ảnh cũ: " + e.getMessage());
                         }
                     }
 
-                    // --- BƯỚC 2: UPLOAD ẢNH MỚI ---
+                    // BƯỚC 2: UPLOAD ẢNH MỚI LÊN CLOUDINARY
                     Cloudinary cloudinary = CloudinaryConfig.getCloudinary();
                     byte[] data = part.getInputStream().readAllBytes();
-                    Map<?, ?> uploadResult = cloudinary.uploader().upload(data, ObjectUtils.emptyMap());
-                    String avatarUrl = (String) uploadResult.get("secure_url");
 
-                    // --- BƯỚC 3: CẬP NHẬT DATABASE ---
-                    if (userDAO.updateAvatarUrl(userSession.getId(), avatarUrl)) {
-                        userSession.setAvatarUrl(avatarUrl);
+                    // Upload và lấy URL
+                    Map<?, ?> uploadResult = cloudinary.uploader().upload(data, ObjectUtils.emptyMap());
+                    String newAvatarUrl = (String) uploadResult.get("secure_url");
+
+                    // BƯỚC 3: CẬP NHẬT VÀO DATABASE
+                    boolean isUpdated = userDAO.updateAvatarUrl(userSession.getId(), newAvatarUrl);
+
+                    if (isUpdated) {
+                        // Cập nhật session để giao diện hiển thị ngay ảnh mới mà không cần F5
+                        userSession.setAvatarUrl(newAvatarUrl);
                         session.setAttribute("clientUser", userSession);
                         session.setAttribute("msgSuccess", "Cập nhật ảnh đại diện thành công!");
                     } else {
-                        session.setAttribute("msgError", "Lỗi cập nhật CSDL.");
+                        session.setAttribute("msgError", "Cập nhật vào Database thất bại.");
                     }
+                } else {
+                    session.setAttribute("msgError", "Vui lòng chọn một tệp hình ảnh hợp lệ.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -147,17 +160,5 @@ public class ParentProfileController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/parent/profile");
     }
 
-    // Phương thức hỗ trợ để lấy PublicID từ URL
-    private String extractPublicId(String url) {
-        if (url == null || url.isEmpty()) return null;
-        try {
-            // Ví dụ URL: .../upload/v123456/sample_image.jpg
-            // Ta cần lấy "sample_image"
-            String[] parts = url.split("/");
-            String filename = parts[parts.length - 1]; // "sample_image.jpg"
-            return filename.substring(0, filename.lastIndexOf('.')); // "sample_image"
-        } catch (Exception e) {
-            return null;
-        }
-    }
+
 }

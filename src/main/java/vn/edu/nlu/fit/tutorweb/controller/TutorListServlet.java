@@ -1,6 +1,8 @@
 package vn.edu.nlu.fit.tutorweb.controller;
 
+import jakarta.servlet.http.HttpSession;
 import vn.edu.nlu.fit.tutorweb.dao.TutorDAO;
+import vn.edu.nlu.fit.tutorweb.dto.Cart;
 import vn.edu.nlu.fit.tutorweb.entity.TutorSearchResult;
 
 import jakarta.servlet.ServletException;
@@ -8,6 +10,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import vn.edu.nlu.fit.tutorweb.entity.UserSession;
+import vn.edu.nlu.fit.tutorweb.service.SavedTutorService;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
@@ -77,6 +82,21 @@ public class TutorListServlet extends HttpServlet {
             // 5. Thiết lập metadata cho trang
             request.setAttribute("pageTitle", "Danh sách gia sư");
             request.setAttribute("pageCss", "/assets/css/list-tutor.css");
+
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                UserSession user = (UserSession) session.getAttribute("clientUser");
+                if (user != null && user.hasRole("USER")) {
+                    // savedTutorIds cho wishlist
+                    SavedTutorService sts = new SavedTutorService();
+                    request.setAttribute("savedTutorIds", sts.getSavedTutorIdsByParentId(user.getId()));
+
+                    // cartTutorIds cho cart
+                    Cart cart = (Cart) session.getAttribute("cart");
+                    request.setAttribute("cartTutorIds",
+                            cart != null ? cart.getTutorIds() : new java.util.ArrayList<>());
+                }
+            }
 
             request.setAttribute("tutors", list);
             request.getRequestDispatcher("/views/tutor/list-tutor.jsp").forward(request, response);

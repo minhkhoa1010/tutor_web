@@ -195,32 +195,52 @@
             </div>
         </div>
 
-        <nav class="sidebar-nav">
-            <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item active">
-                <span class="nav-icon material-symbols-outlined">dashboard</span>
-                <span>Tổng quan</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/admin/tutors" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">school</span>
-                <span>Gia sư</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/admin/students" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">group</span>
-                <span>Học viên</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/admin/complaints" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">gavel</span>
-                <span>Xử lý khiếu nại</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">contact_support</span>
-                <span>Yêu cầu liên hệ</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">payments</span>
-                <span>Duyệt rút tiền</span>
-            </a>
-        </nav>
+<nav class="sidebar-nav">
+    <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item active">
+        <span class="nav-icon material-symbols-outlined">dashboard</span>
+        <span>Tổng quan</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/tutors" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">school</span>
+        <span>Gia sư</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/students" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">group</span>
+        <span>Học viên</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/users" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">manage_accounts</span>
+        <span>Tài khoản</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/bookings" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">event_note</span>
+        <span>Lớp học</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/payments" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">receipt_long</span>
+        <span>Thanh toán</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/complaints" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">gavel</span>
+        <span>Xử lý khiếu nại</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">contact_support</span>
+        <span>Yêu cầu liên hệ</span>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">payments</span>
+        <span>Duyệt rút tiền</span>
+    </a>
+</nav>
 
         <div class="sidebar-bottom">
             <div class="sidebar-user">

@@ -6,6 +6,7 @@ import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import vn.edu.nlu.fit.tutorweb.entity.WithdrawalRequest;
 import vn.edu.nlu.fit.tutorweb.dto.AdminUserDTO;
+import vn.edu.nlu.fit.tutorweb.dto.AdminBookingDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -556,6 +557,84 @@ public class AdminDAO {
                 handle.createUpdate(sql)
                         .bind("active", active ? 1 : 0)
                         .bind("id", userId)
+                        .execute() > 0
+        );
+    }
+
+    public List<AdminBookingDTO> getAllBookingsForAdmin() {
+        String sql = """
+            SELECT
+                b.id AS bookingId,
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+               'Theo thỏa thuận' AS schedule,
+                b.total_price AS totalPrice,
+                b.status AS status,
+                DATE_FORMAT(b.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+
+                b.parent_id AS parentId,
+                u_parent.fullname AS parentName,
+                u_parent.email AS parentEmail,
+
+                b.tutor_id AS tutorId,
+                u_tutor.fullname AS tutorName,
+                u_tutor.email AS tutorEmail
+            FROM bookings b
+            LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+            LEFT JOIN tutors t ON b.tutor_id = t.id
+            LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+            ORDER BY b.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminBookingDTO.class)
+                        .list()
+        );
+    }
+
+    public List<AdminBookingDTO> getPendingBookingsForAdmin() {
+        String sql = """
+            SELECT
+                b.id AS bookingId,
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+                'Theo thỏa thuận' AS schedule,
+                b.total_price AS totalPrice,
+                b.status AS status,
+                DATE_FORMAT(b.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+
+                b.parent_id AS parentId,
+                u_parent.fullname AS parentName,
+                u_parent.email AS parentEmail,
+
+                b.tutor_id AS tutorId,
+                u_tutor.fullname AS tutorName,
+                u_tutor.email AS tutorEmail
+            FROM bookings b
+            LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+            LEFT JOIN tutors t ON b.tutor_id = t.id
+            LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+            WHERE b.status = 'PENDING'
+            ORDER BY b.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminBookingDTO.class)
+                        .list()
+        );
+    }
+
+    public boolean updateBookingStatusByAdmin(long bookingId, String status) {
+        String sql = """
+            UPDATE bookings
+            SET status = :status
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("status", status)
+                        .bind("id", bookingId)
                         .execute() > 0
         );
     }

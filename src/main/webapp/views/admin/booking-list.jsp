@@ -1,0 +1,353 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Lớp Học – Gia Sư Bá Đạo VN</title>
+
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+</head>
+
+<body>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+
+<div class="admin-wrapper">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-icon material-symbols-outlined">school</span>
+            <div>
+                <h2>Bá Đạo Admin</h2>
+                <span>Quản lý cổng thông tin</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="${ctx}/admin/dashboard" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">dashboard</span>
+                <span>Tổng quan</span>
+            </a>
+
+            <a href="${ctx}/admin/tutors" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">school</span>
+                <span>Gia sư</span>
+            </a>
+
+            <a href="${ctx}/admin/students" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">group</span>
+                <span>Học viên</span>
+            </a>
+
+            <a href="${ctx}/admin/users" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">manage_accounts</span>
+                <span>Tài khoản</span>
+            </a>
+
+            <a href="${ctx}/admin/bookings" class="nav-item active">
+                <span class="nav-icon material-symbols-outlined">event_note</span>
+                <span>Lớp học</span>
+            </a>
+
+            <a href="${ctx}/admin/payments" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">receipt_long</span>
+                <span>Thanh toán</span>
+            </a>
+
+            <a href="${ctx}/admin/complaints" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">gavel</span>
+                <span>Xử lý khiếu nại</span>
+            </a>
+
+            <a href="${ctx}/admin/quan-ly-lien-he" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">contact_support</span>
+                <span>Yêu cầu liên hệ</span>
+            </a>
+
+            <a href="${ctx}/admin/withdrawals" class="nav-item">
+                <span class="nav-icon material-symbols-outlined">payments</span>
+                <span>Duyệt rút tiền</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-user">
+                <img src="${not empty sessionScope.clientUser.avatarUrl ? sessionScope.clientUser.avatarUrl : 'https://ui-avatars.com/api/?name=Admin+User&background=1a2f5a&color=fff'}"
+                     alt="Admin">
+                <div>
+                    <strong>
+                        <c:out value="${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Quản Trị Viên Hệ Thống'}"/>
+                    </strong>
+                    <span>SUPER ADMINISTRATOR</span>
+                </div>
+            </div>
+
+            <a href="${ctx}/admin/settings" class="nav-item settings-item">
+                <span class="nav-icon material-symbols-outlined">settings</span>
+                <span>Cài đặt</span>
+            </a>
+
+            <a href="${ctx}/logout" class="nav-item logout-item">
+                <span class="nav-icon material-symbols-outlined">logout</span>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-brand">
+                <span class="brand-dot"></span>
+                <span class="brand-name">Gia Sư Bá Đạo VN</span>
+            </div>
+
+            <div class="topbar-search">
+                <span class="search-icon material-symbols-outlined">search</span>
+                <input type="text" placeholder="Tìm kiếm lớp học, phụ huynh hoặc gia sư...">
+            </div>
+
+            <nav class="topbar-links">
+                <a href="#">Trợ giúp</a>
+                <a href="#">Báo cáo</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <button class="icon-btn notif-btn">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="notif-dot"></span>
+                </button>
+
+                <button class="icon-btn">
+                    <span class="material-symbols-outlined">mail</span>
+                </button>
+
+                <img class="avatar-sm"
+                     src="${not empty sessionScope.clientUser.avatarUrl ? sessionScope.clientUser.avatarUrl : 'https://ui-avatars.com/api/?name=Admin+User&background=1a2f5a&color=fff'}"
+                     alt="Admin">
+            </div>
+        </header>
+
+        <div class="page-body">
+
+            <div class="page-title-row">
+                <div>
+                    <h1>Quản lý lớp học</h1>
+                    <p>Xem danh sách lớp học, duyệt/từ chối yêu cầu mở lớp và hủy lớp học.</p>
+                </div>
+            </div>
+
+            <c:if test="${param.success == 'updated'}">
+                <div class="booking-message success">
+                    Cập nhật trạng thái lớp học thành công.
+                </div>
+            </c:if>
+
+            <c:if test="${not empty param.error}">
+                <div class="booking-message error">
+                    Có lỗi xảy ra khi xử lý lớp học.
+                </div>
+            </c:if>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h3>Danh sách lớp học</h3>
+                    <span class="new-apps-badge">
+                        <c:choose>
+                            <c:when test="${not empty bookings}">
+                                ${bookings.size()} lớp học
+                            </c:when>
+                            <c:otherwise>
+                                0 lớp học
+                            </c:otherwise>
+                        </c:choose>
+                    </span>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>MÃ LỚP</th>
+                        <th>MÔN HỌC</th>
+                        <th>PHỤ HUYNH</th>
+                        <th>GIA SƯ</th>
+                        <th>LỊCH HỌC</th>
+                        <th>HỌC PHÍ</th>
+                        <th>NGÀY TẠO</th>
+                        <th>TRẠNG THÁI</th>
+                        <th style="text-align:center;">HÀNH ĐỘNG</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <c:choose>
+                        <c:when test="${not empty bookings}">
+                            <c:forEach var="b" items="${bookings}">
+                                <tr>
+                                    <td>
+                                        <strong>#BK-${b.bookingId}</strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="subject-tag">
+                                            <c:out value="${b.subjectName}"/>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="booking-user-info">
+                                            <strong>
+                                                <c:out value="${not empty b.parentName ? b.parentName : 'Chưa xác định'}"/>
+                                            </strong>
+                                            <small>
+                                                <c:out value="${not empty b.parentEmail ? b.parentEmail : 'Không có email'}"/>
+                                            </small>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="booking-user-info">
+                                            <strong>
+                                                <c:out value="${not empty b.tutorName ? b.tutorName : 'Chưa xác định'}"/>
+                                            </strong>
+                                            <small>
+                                                <c:out value="${not empty b.tutorEmail ? b.tutorEmail : 'Không có email'}"/>
+                                            </small>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty b.schedule}">
+                                                <c:out value="${b.schedule}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                Theo thỏa thuận
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td class="booking-price">
+                                        <fmt:formatNumber value="${b.totalPrice}" type="number"/>đ
+                                    </td>
+
+                                    <td>
+                                        <c:out value="${b.createdAt}"/>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${b.status == 'PENDING'}">
+                                                <span class="booking-status pending">Chờ duyệt</span>
+                                            </c:when>
+
+                                            <c:when test="${b.status == 'ACTIVE'}">
+                                                <span class="booking-status active">Đang học</span>
+                                            </c:when>
+
+                                            <c:when test="${b.status == 'PAID'}">
+                                                <span class="booking-status paid">Đã thanh toán</span>
+                                            </c:when>
+
+                                            <c:when test="${b.status == 'COMPLETED'}">
+                                                <span class="booking-status completed">Hoàn thành</span>
+                                            </c:when>
+
+                                            <c:when test="${b.status == 'CANCELLED'}">
+                                                <span class="booking-status cancelled">Đã hủy</span>
+                                            </c:when>
+
+                                            <c:when test="${b.status == 'REJECTED'}">
+                                                <span class="booking-status rejected">Từ chối</span>
+                                            </c:when>
+
+                                            <c:otherwise>
+                                                <span class="booking-status other">
+                                                    <c:out value="${b.status}"/>
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td>
+                                        <div class="booking-action-group">
+                                            <c:if test="${b.status == 'PENDING'}">
+                                                <form class="booking-action-form"
+                                                      action="${ctx}/admin/bookings/action"
+                                                      method="post">
+                                                    <input type="hidden" name="id" value="${b.bookingId}">
+                                                    <input type="hidden" name="action" value="approve">
+
+                                                    <button class="btn-booking-action btn-approve"
+                                                            type="submit"
+                                                            onclick="return confirm('Duyệt yêu cầu mở lớp này?')">
+                                                        <span class="material-symbols-outlined">check</span>
+                                                        Duyệt
+                                                    </button>
+                                                </form>
+
+                                                <form class="booking-action-form"
+                                                      action="${ctx}/admin/bookings/action"
+                                                      method="post">
+                                                    <input type="hidden" name="id" value="${b.bookingId}">
+                                                    <input type="hidden" name="action" value="reject">
+
+                                                    <button class="btn-booking-action btn-reject"
+                                                            type="submit"
+                                                            onclick="return confirm('Từ chối yêu cầu mở lớp này?')">
+                                                        <span class="material-symbols-outlined">close</span>
+                                                        Từ chối
+                                                    </button>
+                                                </form>
+                                            </c:if>
+
+                                            <c:if test="${b.status == 'ACTIVE' || b.status == 'PAID' || b.status == 'PENDING_COMPLETED'}">
+                                                <form class="booking-action-form"
+                                                      action="${ctx}/admin/bookings/action"
+                                                      method="post">
+                                                    <input type="hidden" name="id" value="${b.bookingId}">
+                                                    <input type="hidden" name="action" value="cancel">
+
+                                                    <button class="btn-booking-action btn-cancel"
+                                                            type="submit"
+                                                            onclick="return confirm('Bạn chắc chắn muốn hủy lớp học này?')">
+                                                        <span class="material-symbols-outlined">block</span>
+                                                        Hủy lớp
+                                                    </button>
+                                                </form>
+                                            </c:if>
+
+                                            <c:if test="${b.status != 'PENDING' && b.status != 'ACTIVE' && b.status != 'PAID' && b.status != 'PENDING_COMPLETED'}">
+                                                <span class="muted-action">Không có</span>
+                                            </c:if>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </c:when>
+
+                        <c:otherwise>
+                            <tr>
+                                <td colspan="9" class="booking-empty">
+                                    Chưa có lớp học nào.
+                                </td>
+                            </tr>
+                        </c:otherwise>
+                    </c:choose>
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="page-footer">
+                © 2026 Gia Sư Bá Đạo VN • Giao diện quản trị hệ thống
+            </footer>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

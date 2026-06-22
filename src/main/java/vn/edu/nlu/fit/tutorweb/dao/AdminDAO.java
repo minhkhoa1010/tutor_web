@@ -5,6 +5,7 @@ import vn.edu.nlu.fit.tutorweb.dto.StudentSearchResult;
 import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import vn.edu.nlu.fit.tutorweb.entity.WithdrawalRequest;
+import vn.edu.nlu.fit.tutorweb.dto.AdminUserDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -291,12 +292,15 @@ public class AdminDAO {
     // 2. TỐI ƯU HÓA: Doanh thu theo Môn học trong CHÍNH XÁC tháng/năm hiện tại (Dùng cho Doughnut Chart)
     public List<Map<String, Object>> getRevenueBySubject() {
         String sql = """
-            SELECT b.subject_name as subject, SUM(pr.service_fee) as total
-            FROM platform_revenue pr
-            JOIN bookings b ON pr.booking_id = b.id
-            WHERE MONTH(pr.created_at) = MONTH(CURRENT_DATE())
-              AND YEAR(pr.created_at) = YEAR(CURRENT_DATE())
-            GROUP BY b.subject_name
+                SELECT\s
+                            COALESCE(t.teaching_subject, 'Chưa xác định') AS subject,
+                            COALESCE(SUM(pr.service_fee), 0) AS total
+                        FROM platform_revenue pr
+                        JOIN bookings b ON pr.booking_id = b.id
+                        JOIN tutors t ON b.tutor_id = t.id
+                        WHERE MONTH(pr.created_at) = MONTH(CURRENT_DATE())
+                          AND YEAR(pr.created_at) = YEAR(CURRENT_DATE())
+                        GROUP BY t.teaching_subject
         """;
         return DBConnect.get().withHandle(h -> h.createQuery(sql).mapToMap().list());
     }
@@ -309,22 +313,22 @@ public class AdminDAO {
     public List<Map<String, Object>> getReportedTutors() {
         String sql = """
          SELECT
-               b.id AS booking_id,
-               b.subject_name,
-               b.total_price,
-               u_tutor.fullname AS tutor_name,
-               u_tutor.avatar_url AS avatar_url,
-               u_parent.fullname AS parent_name,
-               b.dispute_reason AS complaint_reason,
-               b.dispute_evidence_url AS dispute_evidence_url,
-               b.dispute_by AS dispute_by
-           FROM bookings b
-           LEFT JOIN tutors t ON b.tutor_id = t.id             -- 1. Nối qua bảng tutors trước
-           LEFT JOIN users u_tutor ON t.user_id = u_tutor.id   -- 2. Từ tutors mới nối qua users
-           LEFT JOIN users u_parent ON b.parent_id = u_parent.id
-           WHERE b.status = 'DISPUTED'
-           ORDER BY b.id DESC
-           LIMIT 5
+                                          b.id AS booking_id,
+                                          COALESCE(t.teaching_subject, 'Chưa xác định') AS subject_name,
+                                          b.total_price,
+                                          u_tutor.fullname AS tutor_name,
+                                          u_tutor.avatar_url AS avatar_url,
+                                          u_parent.fullname AS parent_name,
+                                          b.dispute_reason AS complaint_reason,
+                                          b.dispute_evidence_url AS dispute_evidence_url,
+                                          b.dispute_by AS dispute_by
+                                      FROM bookings b
+                                      LEFT JOIN tutors t ON b.tutor_id = t.id
+                                      LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+                                      LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+                                      WHERE b.status = 'DISPUTED'
+                                      ORDER BY b.id DESC
+                                      LIMIT 5
     """;
 
         return DBConnect.get().withHandle(handle -> handle.createQuery(sql).mapToMap().list());
@@ -508,5 +512,51 @@ public class AdminDAO {
             e.printStackTrace();
             return false; // Có lỗi xảy ra, JDBI tự động ROLLBACK hoàn toàn
         }
+    }
+    public List<AdminUserDTO> getAllUsersForAdmin() {
+        String sql = """
+            SELECT 
+                u.id AS id,
+                u.fullname AS fullname,
+                u.email AS email,
+                u.phone AS phone,
+                u.avatar_url AS avatarUrl,
+                u.is_active AS active,
+                DATE_FORMAT(u.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+                GROUP_CONCAT(r.name ORDER BY r.id SEPARATOR ', ') AS roleName
+            FROM users u
+            LEFT JOIN user_roles ur ON u.id = ur.user_id
+            LEFT JOIN roles r ON ur.role_id = r.id
+            GROUP BY 
+                u.id, 
+                u.fullname, 
+                u.email, 
+                u.phone, 
+                u.avatar_url, 
+                u.is_active, 
+                u.created_at
+            ORDER BY u.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminUserDTO.class)
+                        .list()
+        );
+    }
+
+    public boolean updateUserStatus(long userId, boolean active) {
+        String sql = """
+            UPDATE users
+            SET is_active = :active
+            WHERE id = :id AND id <> 1
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("active", active ? 1 : 0)
+                        .bind("id", userId)
+                        .execute() > 0
+        );
     }
 }

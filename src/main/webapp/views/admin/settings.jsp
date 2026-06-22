@@ -49,20 +49,29 @@
       </div>
     </div>
     <nav class="sidebar-nav">
-      <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">dashboard</span><span>Tổng quan</span>
+      <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item active">
+        <span class="nav-icon material-symbols-outlined">dashboard</span>
+        <span>Tổng quan</span>
       </a>
       <a href="${pageContext.request.contextPath}/admin/tutors" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">school</span><span>Gia sư</span>
+        <span class="nav-icon material-symbols-outlined">school</span>
+        <span>Gia sư</span>
       </a>
       <a href="${pageContext.request.contextPath}/admin/students" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">group</span><span>Học viên</span>
+        <span class="nav-icon material-symbols-outlined">group</span>
+        <span>Học viên</span>
       </a>
-      <a href="${pageContext.request.contextPath}/admin/classes" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">menu_book</span><span>Lớp học</span>
+      <a href="${pageContext.request.contextPath}/admin/complaints" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">gavel</span>
+        <span>Xử lý khiếu nại</span>
       </a>
-      <a href="${pageContext.request.contextPath}/admin/payments" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">payments</span><span>Thanh toán</span>
+      <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">contact_support</span>
+        <span>Yêu cầu liên hệ</span>
+      </a>
+      <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item">
+        <span class="nav-icon material-symbols-outlined">payments</span>
+        <span>Duyệt rút tiền</span>
       </a>
     </nav>
     <div class="sidebar-bottom">

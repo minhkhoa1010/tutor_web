@@ -1,9 +1,11 @@
 # Maven
 target/
 
+
 # Local config chứa secret
 db.properties
 *.properties.local
+config.properties
 .env
 
 # Logs

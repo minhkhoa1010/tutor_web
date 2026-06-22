@@ -435,4 +435,78 @@ public class TutorRegistrationDAO {
             return false;
         }
     }
+
+    // =========================================================================
+    // 🌟 FULL UPDATE: CẬP NHẬT CẢ THÔNG TIN CƠ BẢN (USERS) & NĂNG LỰC (TUTORS)
+    // =========================================================================
+    public boolean updateTutorSettings(
+            long userId,
+            String fullname,
+            String phone,
+            String school,
+            String major,
+            String qualification,
+            String experienceSummary,
+            String[] subjects,
+            String[] grades,
+            String[] areas) {
+
+        try {
+            return DBConnect.get().inTransaction(h -> {
+                System.out.println(">>> [SETTINGS] BƯỚC 1: CẬP NHẬT BẢNG USERS (HỌ TÊN & SĐT)");
+
+                // 1. Cập nhật thông tin tài khoản cơ bản
+                h.createUpdate("""
+                            UPDATE users 
+                            SET fullname = :fullname, phone = :phone 
+                            WHERE id = :userId
+                        """)
+                        .bind("fullname", fullname != null ? fullname.trim() : "")
+                        .bind("phone", (phone != null && !phone.isBlank()) ? phone.trim() : null)
+                        .bind("userId", userId)
+                        .execute();
+
+                System.out.println(">>> [SETTINGS] BƯỚC 2: CHUYỂN MẢNG CHECKBOX THÀNH CHUỖI GỘP");
+
+                // Chuẩn hóa tránh lỗi NullPointerException khi gia sư bỏ tích sạch checkbox
+                String subjectsStr = (subjects == null) ? "" : String.join(", ", subjects);
+                String gradesStr   = (grades == null) ? "" : String.join(", ", grades);
+                String areasStr    = (areas == null) ? "" : String.join(", ", areas);
+
+                System.out.println(">>> [SETTINGS] BƯỚC 3: CẬP NHẬT BẢNG TUTORS (HỌC VẤN & PHẠM VI)");
+
+                // 2. Cập nhật chi tiết năng lực gia sư
+                h.createUpdate("""
+                            UPDATE tutors
+                            SET 
+                                school             = :school,
+                                major              = :major,
+                                qualification      = :qualification,
+                                experience_summary = :experience,
+                                teaching_subject   = :subjects,
+                                teaching_grade     = :grades,
+                                teaching_area      = :areas
+                            WHERE user_id = :userId
+                        """)
+                        .bind("school", school != null ? school.trim() : "")
+                        .bind("major", major != null ? major.trim() : "")
+                        .bind("qualification", qualification)
+                        .bind("experience", experienceSummary != null ? experienceSummary.trim() : "")
+                        .bind("subjects", subjectsStr)
+                        .bind("grades", gradesStr)
+                        .bind("areas", areasStr)
+                        .bind("userId", userId)
+                        .execute();
+
+                System.out.println(">>> [SETTINGS] CẬP NHẬT ĐỒNG BỘ THÀNH CÔNG CHO USER ID = " + userId);
+                return true;
+            });
+        } catch (Exception e) {
+            System.err.println(">>> [SETTINGS] LỖI HỆ THỐNG KHI UPDATE SETTINGS");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 }

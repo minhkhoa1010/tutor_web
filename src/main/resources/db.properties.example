@@ -1,0 +1,6 @@
+# db.properties.example
+
+db.url=jdbc:mysql://localhost:3306/tutor_web
+db.username=root
+db.password=
+

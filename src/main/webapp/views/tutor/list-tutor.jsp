@@ -3,10 +3,11 @@
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<c:set var="pageTitle" value="Danh sách Gia sư - Gia Sư Bá Đạo" scope="request"/>
-
-<jsp:include page="/views/common/header.jsp"/>
-
+<jsp:include page="/views/common/header.jsp">
+    <jsp:param name="pageTitle" value="Danh sách Gia sư - Gia Sư Bá Đạo"/>
+</jsp:include>
+<%-- Font Awesome — cần thiết cho icon trái tim và cart --%>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <jsp:include page="/views/common/navbar.jsp"/>
 
 <%-- Tính min/max giá từ dữ liệu thực tế --%>
@@ -257,9 +258,13 @@
                             <c:forEach var="tutor" items="${tutors}">
                                 <article class="tutor-card-item"
                                          data-schedules="${tutor.availableSchedules}"
-                                         style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; display: flex; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: all 0.3s ease;">
+                                         style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; display: flex; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: all 0.3s ease; position: relative;">
 
-                                        <%-- Avatar & Đánh giá --%>
+                                        <%-- 🌟 1. NÚT YÊU THÍCH (BỎ VÀO ĐẦU THẺ ARTICLE ĐỂ ABSOLUTE THEO CARD CORNER) --%>
+                                    <c:set var="isFavorite" value="${not empty savedTutorIds && fn:contains(savedTutorIds, tutor.tutorId)}" />
+
+
+                                        <%-- Avatar & Đánh giá (Giữ nguyên) --%>
                                     <div class="card-avatar-section" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
                                         <c:choose>
                                             <c:when test="${not empty tutor.avatarUrl}">
@@ -270,27 +275,28 @@
                                             </c:otherwise>
                                         </c:choose>
                                         <span style="display: inline-flex; align-items: center; gap: 4px; background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">
-                                            <c:choose>
-                                                <c:when test="${tutor.ratingAverage > 0}">
-                                                    ★ ${tutor.ratingAverage}
-                                                </c:when>
-                                                <c:otherwise>
-                                                    ★ Mới
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </span>
+                <c:choose>
+                    <c:when test="${tutor.ratingAverage > 0}">
+                        ★ ${tutor.ratingAverage}
+                    </c:when>
+                    <c:otherwise>
+                        ★ Mới
+                    </c:otherwise>
+                </c:choose>
+            </span>
                                     </div>
 
                                         <%-- Thông tin chi tiết --%>
                                     <div class="card-info-section" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin-left: 20px;">
                                         <div>
-                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                                <%-- Tiêu đề & Trình độ (Chừa khoảng trống padding bên phải 35px cho nút yêu thích không đè lên chữ) --%>
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding-right: 35px;">
                                                 <h3 style="font-size: 19px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0; line-height: 1.3;">
                                                     <c:out value="${tutor.fullName}"/>
                                                 </h3>
                                                 <span style="font-size: 11px; font-weight: 700; color: #0f766e; background: #ccfbf1; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; white-space: nowrap;">
-                                                    <c:out value="${tutor.qualification}"/>
-                                                </span>
+                        <c:out value="${tutor.qualification}"/>
+                    </span>
                                             </div>
 
                                             <p style="font-size: 13px; color: #475569; margin: 0 0 8px 0; display: flex; align-items: center; gap: 6px;">
@@ -312,7 +318,7 @@
                                                 <span>Khu vực: <span style="color: #334155; font-weight: 500;"><c:out value="${not empty tutor.teachingArea ? tutor.teachingArea : 'Toàn thành phố'}"/></span></span>
                                             </p>
 
-                                                <%-- Hiển thị slot lịch --%>
+                                                <%-- Lịch rảnh --%>
                                             <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;">
                                                 <c:forEach var="day" items="${fn:split(tutor.availableSchedules, ',')}">
                                                     <span style="font-size: 10px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 600;">${fn:trim(day)}</span>
@@ -320,17 +326,49 @@
                                             </div>
                                         </div>
 
+                                            <%-- Footer của Card --%>
                                         <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #e2e8f0; padding-top: 14px; margin-top: 8px;">
                                             <div>
-                                                <span style="font-size: 18px; font-weight: 800; color: #0d9488;">
-                                                    <fmt:formatNumber value="${tutor.hourlyRate}" type="number"/>đ
-                                                </span>
+                    <span style="font-size: 18px; font-weight: 800; color: #0d9488;">
+                        <fmt:formatNumber value="${tutor.hourlyRate}" type="number"/>đ
+                    </span>
                                                 <span style="font-size: 12px; color: #64748b;"> / buổi</span>
                                             </div>
-                                            <a href="${pageContext.request.contextPath}/tutor/tutor-detail?id=${tutor.tutorId}" style="background: #0d9488; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                                Xem hồ sơ
-                                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
-                                            </a>
+
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                    <%-- NÚT WISHLIST (TRÁI TIM) --%>
+                                                <c:set var="isFav" value="${not empty savedTutorIds && fn:contains(savedTutorIds, tutor.tutorId)}" />
+                                                <button class="btn-wishlist ${isFav ? 'active' : ''}"
+                                                        data-tutor-id="${tutor.tutorId}"
+                                                        title="${isFav ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}"
+                                                        style="background: white; border: 1px solid #e2e8f0; width: 36px; height: 36px;
+                                                                border-radius: 8px; display: flex; align-items: center; justify-content: center;
+                                                                color: ${isFav ? '#ef4444' : '#94a3b8'}; cursor: pointer;
+                                                                box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; flex-shrink: 0;">
+                                                    <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="font-size: 15px;"></i>
+                                                </button>
+
+                                                    <%-- NÚT GIỎ HÀNG (CART) --%>
+                                                <c:set var="isInCart" value="${not empty cartTutorIds && fn:contains(cartTutorIds, tutor.tutorId)}" />
+                                                <button class="btn-action btn-add-cart"
+                                                        data-tutor-id="${tutor.tutorId}"
+                                                        style="background-color: ${isInCart ? '#475569' : '#0d9488'}; color: white; border: none;
+                                                                padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+                                                                cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;">
+                                                    <i class="${isInCart ? 'fa-solid fa-check-double' : 'fa-solid fa-cart-plus'}"></i>
+                                                    <span>${isInCart ? 'Đã chọn' : 'Thêm vào giỏ hàng'}</span>
+                                                </button>
+
+                                                <a href="${pageContext.request.contextPath}/tutor/tutor-detail?id=${tutor.tutorId}"
+                                                   style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px;
+              border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
+              display: inline-flex; align-items: center; gap: 4px;">
+                                                    Xem hồ sơ
+                                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </article>
@@ -421,8 +459,171 @@
         letter-spacing: 1px;
     }
 </style>
+<div id="schedule-select-modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; width: 400px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <h3 style="margin-top:0; color:#0d9488; font-size: 18px; font-weight: 700;">Chọn khung giờ học</h3>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 15px;">Vui lòng chọn các buổi học mong muốn của bạn với gia sư này.</p>
 
+        <div id="modal-schedule-list" style="text-align: left; margin: 20px 0; display: flex; flex-direction: column; gap: 10px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button onclick="closeScheduleModal()" style="flex:1; padding: 11px; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; border-radius:6px; cursor:pointer; font-weight:600;">Hủy</button>
+            <button id="btn-submit-cart-schedule" style="flex:1; padding: 11px; background:#0d9488; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Xác nhận chọn</button>
+        </div>
+    </div>
+</div>
+<div id="login-prompt-modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; width: 350px; text-align: center;">
+        <h3 style="margin-top:0;">Bạn cần đăng nhập</h3>
+        <p style="color: #64748b;">Vui lòng đăng nhập để thực hiện tính năng này.</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="closeLoginModal()" style="flex:1; padding: 10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer;">Hủy</button>
+            <a href="${pageContext.request.contextPath}/login" style="flex:1; padding: 10px; background:#0d9488; color:white; text-decoration:none; border-radius:6px;">Đăng nhập</a>
+        </div>
+    </div>
+</div>
 <script>
+    let currentTutorIdForCart = null;
+    let currentCartButton = null;
+    let originalCartHTML = '';
+
+    function closeScheduleModal() {
+        document.getElementById('schedule-select-modal').style.display = 'none';
+    }
+
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Kiểm tra biến đăng nhập hệ thống của bạn
+            if (typeof IS_LOGGED_IN !== 'undefined' && !IS_LOGGED_IN) {
+                // Nếu có modal thông báo đăng nhập thì bật lên
+                const loginAlert = document.getElementById('your-login-alert-modal-id');
+                if (loginAlert) loginAlert.style.display = 'flex';
+                return;
+            }
+
+            currentTutorIdForCart = this.getAttribute('data-tutor-id');
+            currentCartButton = this;
+            originalCartHTML = this.innerHTML;
+
+            // Nếu trạng thái đang là "Đã chọn", nhấn lại nghĩa là muốn Xóa khỏi giỏ hàng
+            if (this.innerHTML.includes('Đã chọn')) {
+                executeToggleCart(currentTutorIdForCart, '');
+                return;
+            }
+
+            // Gọi API lấy lịch học từ TutorScheduleAPI
+            fetch('${pageContext.request.contextPath}/api/tutor/schedules?tutorId=' + currentTutorIdForCart)
+                .then(res => res.json())
+                .then(data => {
+                    const listContainer = document.getElementById('modal-schedule-list');
+                    listContainer.innerHTML = ''; // Xóa sạch dữ liệu cũ cũ
+
+                    if (!data.all || data.all.length === 0) {
+                        listContainer.innerHTML = '<p style="color:#ef4444; text-align:center; font-size:14px; padding: 10px;">⚠️ Gia sư này chưa đăng ký lịch trống!</p>';
+                        return;
+                    }
+
+                    // Render danh sách checkbox - ĐÃ SỬA: Thêm dấu \ trước $ để tránh xung đột JSP EL
+                    data.all.forEach(sched => {
+                        const cleanSched = sched.trim();
+                        let isDisabled = data.busy.includes(cleanSched);
+
+                        const itemLabel = document.createElement('label');
+                        itemLabel.style.cssText = 'display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0; cursor:pointer; font-size:14px; transition: all 0.2s;';
+
+                        let statusBadge = '';
+                        if (isDisabled) {
+                            statusBadge = ' <span style="margin-left:auto; color:#ef4444; font-weight:600; font-size:12px; background:#fef2f2; padding:2px 6px; border-radius:4px;">Đã thuê</span>';
+                            itemLabel.style.background = '#f8fafc';
+                            itemLabel.style.color = '#94a3b8';
+                            itemLabel.style.cursor = 'not-allowed';
+                        }
+
+                        // Lưu ý các dấu \${} bên dưới để không bị JSP nuốt chữ
+                        itemLabel.innerHTML = `
+                        <input type="checkbox" class="popup-schedule-cb" value="\${cleanSched}"
+                               style="width:16px; height:16px; accent-color:#0d9488;"
+                               \${isDisabled ? 'disabled' : ''}>
+                        <span style="font-weight:500; color: #334155;">\${cleanSched}</span>
+                        \${statusBadge}
+                    `;
+                        listContainer.appendChild(itemLabel);
+                    });
+
+                    // Bật modal popup chọn lịch học lên
+                    document.getElementById('schedule-select-modal').style.display = 'flex';
+                })
+                .catch(err => console.error("Lỗi lấy lịch học từ API:", err));
+        });
+    });
+
+    // Bắt sự kiện nút xác nhận bên trong popup khi phụ huynh chọn xong lịch
+    document.getElementById('btn-submit-cart-schedule').addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.popup-schedule-cb:checked');
+        if (checkedBoxes.length === 0) {
+            alert('⚠️ Bạn phải chọn ít nhất một lịch học để thêm vào giỏ!');
+            return;
+        }
+
+        // Ghép các ô checkbox được tick thành chuỗi: "Sáng Thứ 2, Chiều Thứ 5"
+        const selectedSchedules = Array.from(checkedBoxes).map(cb => cb.value).join(', ');
+        closeScheduleModal();
+
+        // Đẩy dữ liệu sang CartServlet xử lý logic
+        executeToggleCart(currentTutorIdForCart, selectedSchedules);
+    });
+
+    function executeToggleCart(tutorId, scheduleStr) {
+        if (currentCartButton) {
+            currentCartButton.disabled = true;
+            currentCartButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+        }
+
+        fetch('${pageContext.request.contextPath}/cart/toggle?tutorId=' + tutorId + '&schedule=' + encodeURIComponent(scheduleStr), {
+            method: 'POST'
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (currentCartButton) currentCartButton.disabled = false;
+
+                if (data.status === 'added') {
+                    // Thay đổi giao diện nút sang trạng thái "Đã chọn"
+                    currentCartButton.style.background = '#475569';
+                    currentCartButton.innerHTML = '<i class="fa-solid fa-check-double"></i> Đã chọn';
+
+                    // Cập nhật số lượng item trên badge giỏ hàng của thanh Header nếu có
+                    const cartBadge = document.getElementById('cart-badge-count');
+                    if (cartBadge && data.total !== undefined) cartBadge.innerText = data.total;
+
+                } else if (data.status === 'removed') {
+                    // Khôi phục lại trạng thái nút gốc khi xóa khỏi giỏ hàng
+                    currentCartButton.style.background = '#0d9488';
+                    currentCartButton.innerHTML = originalCartHTML;
+
+                    const cartBadge = document.getElementById('cart-badge-count');
+                    if (cartBadge && data.total !== undefined) cartBadge.innerText = data.total;
+
+                } else if (data.status === 'clash' || data.status === 'require_schedule') {
+                    // Trả nút về ban đầu và thông báo lỗi trùng lịch chéo từ BookingDAO phát hiện
+                    currentCartButton.innerHTML = originalCartHTML;
+                    alert(data.message);
+                } else {
+                    currentCartButton.innerHTML = originalCartHTML;
+                    alert('⚠️ Có lỗi xảy ra, vui lòng thử lại sau.');
+                }
+            })
+            .catch(err => {
+                if (currentCartButton) {
+                    currentCartButton.disabled = false;
+                    currentCartButton.innerHTML = originalCartHTML;
+                }
+                console.error("Lỗi hệ thống giỏ hàng:", err);
+            });
+    }
     // =====================================================================
     // LAYOUT SWITCH
     // =====================================================================
@@ -435,21 +636,18 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
-        // Khôi phục layout từ localStorage
+        // Khôi phục layout
         changeLayout(localStorage.getItem('tutor_layout_pref') || 'grid');
 
         // =====================================================================
-        // FIX LỖI 3: SLIDER HỌC PHÍ
-        // Hiển thị đúng giá trị thực — không bị -5đ nữa vì step="1000"
+        // SLIDER HỌC PHÍ
         // =====================================================================
         const slider = document.getElementById('priceRange');
         const display = document.getElementById('price-display');
-        // Lấy max thực tế từ data-max attribute (= dbMaxPrice từ server)
         const SLIDER_MAX = slider ? parseInt(slider.getAttribute('data-max')) : 5000000;
         if (slider && display) {
             function updatePriceDisplay(val) {
                 const num = parseInt(val);
-                // So sánh với SLIDER_MAX động — không hardcode
                 display.textContent = num >= SLIDER_MAX
                     ? 'Không giới hạn'
                     : 'Dưới ' + num.toLocaleString('vi-VN') + 'đ';
@@ -459,26 +657,16 @@
         }
 
         // =====================================================================
-        // FIX LỖI 4: MULTI-SELECT LỊCH HỌC
-        // - Dùng JS Set để lưu tất cả slot đang được chọn
-        // - Khôi phục trạng thái từ URL params khi trang load lại sau filter
-        // - Khi submit form → inject hidden inputs vào form
+        // MULTI-SELECT LỊCH HỌC
         // =====================================================================
         const selectedSlots = new Set();
-
-        // --- Khôi phục trạng thái từ URL (sau khi server trả về trang) ---
         const urlParams = new URLSearchParams(window.location.search);
-        urlParams.getAll('scheduleSlot').forEach(slot => {
-            selectedSlots.add(slot);
-        });
+        urlParams.getAll('scheduleSlot').forEach(slot => selectedSlots.add(slot));
 
-        // --- Render lại visual các cell đã chọn ---
         function syncCellVisuals() {
             document.querySelectorAll('.schedule-cell').forEach(cell => {
-                const slot = cell.getAttribute('data-slot');
-                cell.classList.toggle('active-slot', selectedSlots.has(slot));
+                cell.classList.toggle('active-slot', selectedSlots.has(cell.getAttribute('data-slot')));
             });
-            // Cập nhật badge đếm
             const badge = document.getElementById('schedule-count-badge');
             if (selectedSlots.size > 0) {
                 badge.textContent = selectedSlots.size;
@@ -487,33 +675,24 @@
                 badge.style.display = 'none';
             }
         }
-        syncCellVisuals(); // chạy ngay khi load
+        syncCellVisuals();
 
-        // --- Click toggle từng cell ---
         document.querySelectorAll('.schedule-cell').forEach(cell => {
             cell.addEventListener('click', function () {
                 const slot = this.getAttribute('data-slot');
-                if (selectedSlots.has(slot)) {
-                    selectedSlots.delete(slot);
-                } else {
-                    selectedSlots.add(slot);
-                }
+                selectedSlots.has(slot) ? selectedSlots.delete(slot) : selectedSlots.add(slot);
                 syncCellVisuals();
             });
         });
 
-        // --- Nút xóa toàn bộ chọn ---
         document.getElementById('clear-schedule-filter').addEventListener('click', function () {
             selectedSlots.clear();
             syncCellVisuals();
         });
 
-        // --- Trước khi submit form: inject hidden inputs cho từng slot đã chọn ---
         document.getElementById('filter-form').addEventListener('submit', function () {
-            // Xóa hidden inputs cũ (nếu submit lại)
             const container = document.getElementById('schedule-hidden-container');
             container.innerHTML = '';
-            // Inject hidden input cho từng slot đang được tích chọn
             selectedSlots.forEach(slot => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
@@ -521,7 +700,6 @@
                 input.value = slot;
                 container.appendChild(input);
             });
-            // Nếu slider kéo hết sang phải (= max = không giới hạn) thì không gửi maxRate
             if (slider && parseInt(slider.value) >= SLIDER_MAX) {
                 slider.removeAttribute('name');
             }
@@ -529,14 +707,9 @@
 
         // =====================================================================
         // PHÂN TRANG CLIENT-SIDE
-        // - 4 card / trang
-        // - Số trang hiển thị: 1 2 3 ... (maxPage-2) (maxPage-1) maxPage
-        //   hoặc đầy đủ nếu ≤ 7 trang
-        // - Mỗi lần chuyển trang: scroll nhẹ lên đầu kết quả
         // =====================================================================
         const PAGE_SIZE = 4;
         let currentPage = 1;
-
         const allCards = Array.from(document.querySelectorAll('.tutor-card-item'));
         const totalPages = Math.ceil(allCards.length / PAGE_SIZE);
         const paginationBar = document.getElementById('pagination-bar');
@@ -545,14 +718,10 @@
             currentPage = page;
             const start = (page - 1) * PAGE_SIZE;
             const end = start + PAGE_SIZE;
-
             allCards.forEach((card, idx) => {
                 card.style.display = (idx >= start && idx < end) ? 'flex' : 'none';
             });
-
             renderPagination();
-
-            // Scroll nhẹ lên đầu vùng kết quả
             const section = document.getElementById('tutors-container-list');
             if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -561,7 +730,6 @@
             if (!paginationBar || totalPages <= 1) return;
             paginationBar.innerHTML = '';
 
-            // Nút ← Trước
             const prevBtn = document.createElement('button');
             prevBtn.className = 'pg-btn';
             prevBtn.innerHTML = '&#8592;';
@@ -569,12 +737,7 @@
             prevBtn.addEventListener('click', () => showPage(currentPage - 1));
             paginationBar.appendChild(prevBtn);
 
-            // Tính dãy số trang hiển thị
-            // Logic: luôn hiện 3 trang đầu, dấu ..., 3 trang cuối
-            // Nếu tổng ≤ 7 thì hiện hết
-            const pages = buildPageRange(currentPage, totalPages);
-
-            pages.forEach(item => {
+            buildPageRange(currentPage, totalPages).forEach(item => {
                 if (item === '...') {
                     const el = document.createElement('span');
                     el.className = 'pg-ellipsis';
@@ -589,7 +752,6 @@
                 }
             });
 
-            // Nút → Sau
             const nextBtn = document.createElement('button');
             nextBtn.className = 'pg-btn';
             nextBtn.innerHTML = '&#8594;';
@@ -599,44 +761,102 @@
         }
 
         function buildPageRange(current, total) {
-            // Nếu ≤ 7 trang: hiện hết
-            if (total <= 7) {
-                return Array.from({ length: total }, (_, i) => i + 1);
-            }
-
-            const result = [];
-            // Luôn có trang 1
-            result.push(1);
-
+            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            const result = [1];
             if (current <= 4) {
-                // Gần đầu: 1 2 3 4 5 ... (total-1) total
                 for (let i = 2; i <= Math.min(5, total - 2); i++) result.push(i);
-                result.push('...');
-                result.push(total - 1);
-                result.push(total);
+                result.push('...', total - 1, total);
             } else if (current >= total - 3) {
-                // Gần cuối: 1 2 ... (total-4) (total-3) (total-2) (total-1) total
-                result.push(2);
-                result.push('...');
+                result.push(2, '...');
                 for (let i = Math.max(total - 4, 3); i <= total; i++) result.push(i);
             } else {
-                // Giữa: 1 2 ... (current-1) current (current+1) ... (total-1) total
-                result.push(2);
-                result.push('...');
-                result.push(current - 1);
-                result.push(current);
-                result.push(current + 1);
-                result.push('...');
-                result.push(total - 1);
-                result.push(total);
+                result.push(2, '...', current - 1, current, current + 1, '...', total - 1, total);
             }
-
             return result;
         }
 
-        // Khởi tạo trang đầu tiên
         if (allCards.length > 0) showPage(1);
-    });
-</script>
 
+        // =====================================================================
+        // AJAX: NÚT GIỎ HÀNG (CART) — icon fa-cart-plus
+        // =====================================================================
+        document.querySelectorAll('.btn-add-cart').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const tutorId = this.getAttribute('data-tutor-id');
+                const spanText = this.querySelector('span');
+                const icon = this.querySelector('i');
+                const btn = this;
+
+                fetch('${pageContext.request.contextPath}/cart/toggle?tutorId=' + tutorId, { method: 'POST' })
+                    .then(res => {
+                        if (res.status === 401) {
+                            alert('Vui lòng đăng nhập tài khoản Phụ huynh để thực hiện chọn thuê gia sư!');
+                            window.location.href = '${pageContext.request.contextPath}/login';
+                            return null;
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data) return;
+                        if (data.status === 'added') {
+                            btn.style.backgroundColor = '#475569';
+                            icon.className = 'fa-solid fa-check-double';
+                            if (spanText) spanText.innerText = 'Đã chọn';
+                        } else if (data.status === 'removed') {
+                            btn.style.backgroundColor = '#0d9488';
+                            icon.className = 'fa-solid fa-cart-plus';
+                            if (spanText) spanText.innerText = 'Thuê ngay';
+                        }
+                    })
+                    .catch(err => console.error('Lỗi giỏ hàng:', err));
+            });
+        });
+
+        // =====================================================================
+        // AJAX: NÚT WISHLIST (TRÁI TIM)
+        // =====================================================================
+        document.querySelectorAll('.btn-wishlist').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const tutorId = this.getAttribute('data-tutor-id');
+                const icon = this.querySelector('i');
+                const btn = this;
+
+                fetch('${pageContext.request.contextPath}/parent/wishlist?tutorId=' + tutorId, { method: 'POST' })
+                    .then(res => {
+                        if (res.status === 401) {
+                            alert('Vui lòng đăng nhập để lưu gia sư vào danh sách yêu thích!');
+                            return null;
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data) return;
+                        if (data.status === 'added') {
+                            icon.className = 'fa-solid fa-heart';
+                            btn.style.color = '#ef4444';
+                            btn.style.borderColor = '#fecaca';
+                            btn.title = 'Bỏ yêu thích';
+                        } else if (data.status === 'removed') {
+                            icon.className = 'fa-regular fa-heart';
+                            btn.style.color = '#94a3b8';
+                            btn.style.borderColor = '#e2e8f0';
+                            btn.title = 'Thêm vào yêu thích';
+                        }
+                    })
+                    .catch(err => console.error('Lỗi wishlist:', err));
+            });
+        });
+
+    });
+    function showLoginModal() {
+        document.getElementById('login-prompt-modal').style.display = 'flex';
+    }
+    function closeLoginModal() {
+        document.getElementById('login-prompt-modal').style.display = 'none';
+    }// end DOMContentLoaded
+</script>
 <jsp:include page="/views/common/footer.jsp"/>

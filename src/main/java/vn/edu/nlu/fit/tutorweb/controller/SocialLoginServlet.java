@@ -1,6 +1,6 @@
 package vn.edu.nlu.fit.tutorweb.controller;
 
-import vn.edu.nlu.fit.tutorweb.db.DBProperties;
+import vn.edu.nlu.fit.tutorweb.db.ConfigProperties; // 1. ĐỔI IMPORT TỪ DBProperties SANG ConfigProperties
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,11 +25,12 @@ public class SocialLoginServlet extends HttpServlet {
         String redirectUrl = "";
         try {
             if (provider.equalsIgnoreCase("google")) {
-                String clientId = DBProperties.get("google.client.id");
-                String redirectUri = DBProperties.get("google.redirect.uri");
+                // 2. ĐỔI THÀNH ConfigProperties.get()
+                String clientId = ConfigProperties.get("google.client.id");
+                String redirectUri = ConfigProperties.get("google.redirect.uri");
 
                 if (clientId == null || redirectUri == null) {
-                    throw new NullPointerException("Cấu hình google.client.id hoặc google.redirect.uri trong db.properties bị rỗng!");
+                    throw new NullPointerException("Cấu hình google.client.id hoặc google.redirect.uri trong config.properties bị rỗng!");
                 }
 
                 redirectUrl = "https://accounts.google.com/o/oauth2/v2/auth?scope=email%20profile"
@@ -37,11 +38,12 @@ public class SocialLoginServlet extends HttpServlet {
                         + "&response_type=code&client_id=" + clientId;
 
             } else if (provider.equalsIgnoreCase("facebook")) {
-                String clientId = DBProperties.get("facebook.client.id");
-                String redirectUri = DBProperties.get("facebook.redirect.uri");
+                // 3. ĐỔI THÀNH ConfigProperties.get()
+                String clientId = ConfigProperties.get("facebook.client.id");
+                String redirectUri = ConfigProperties.get("facebook.redirect.uri");
 
                 if (clientId == null || redirectUri == null) {
-                    throw new NullPointerException("Cấu hình facebook.client.id hoặc facebook.redirect.uri trong db.properties bị rỗng!");
+                    throw new NullPointerException("Cấu hình facebook.client.id hoặc facebook.redirect.uri trong config.properties bị rỗng!");
                 }
 
                 redirectUrl = "https://www.facebook.com/v19.0/dialog/oauth?client_id=" + clientId

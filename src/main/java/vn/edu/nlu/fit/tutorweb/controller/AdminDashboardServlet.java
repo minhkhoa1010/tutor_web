@@ -11,6 +11,7 @@ import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/admin/dashboard")
 public class AdminDashboardServlet extends HttpServlet {
@@ -27,7 +28,7 @@ public class AdminDashboardServlet extends HttpServlet {
 
         List<TutorPending> pendingTutors = adminDAO.getPendingTutors();
 
-        // 2. Lấy dữ liệu mảng tăng trưởng người dùng theo tháng
+        // 2. Lấy dữ liệu mảng tăng trưởng người dùng theo tháng (Dùng cho Line Chart)
         int[] g = adminDAO.getUserGrowthByMonth();
 
         // CRITICAL FIX: Đưa check Validation lên ĐẦU để tránh NullPointerException / OutOfBounds
@@ -48,7 +49,6 @@ public class AdminDashboardServlet extends HttpServlet {
 
             if (lastMonthCount > 0) {
                 tutorGrowth = ((double) (currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
-                // Giả định tạm thời dùng chung mảng growth hoặc bạn có thể custom thêm (tạm thời để học viên tăng tương ứng)
                 studentGrowth = tutorGrowth * 0.8;
             } else if (currentMonthCount > 0) {
                 tutorGrowth = 100.0;
@@ -56,23 +56,79 @@ public class AdminDashboardServlet extends HttpServlet {
             }
         }
 
-        // Định dạng chuỗi JSON cho biểu đồ Chart.js
+        // Định dạng chuỗi JSON cho biểu đồ Đường tăng trưởng người dùng (User Growth Line Chart)
         String chartJson = String.format("[%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]",
                 g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7], g[8], g[9], g[10], g[11]);
 
-        // 4. Đẩy dữ liệu an toàn sang JSP (Đảm bảo tên biến khớp cấu trúc EL)
+        // ==========================================
+        // TỐI ƯU HÓA: BỔ SUNG BIỂU ĐỒ DOANH THU CỐT LÕI
+        // ==========================================
+
+        // A. Xử lý dữ liệu Biểu đồ Cột - Doanh thu theo 12 tháng (Bar Chart)
+        List<Map<String, Object>> revList = adminDAO.getMonthlyRevenueReport();
+        long[] monthlyRevenueData = new long[12]; // Mảng chứa doanh thu thực tế từ T1 đến T12
+        if (revList != null) {
+            for (Map<String, Object> row : revList) {
+                if (row.get("m") != null && row.get("total") != null) {
+                    int month = ((Number) row.get("m")).intValue();
+                    long total = ((Number) row.get("total")).longValue();
+                    if (month >= 1 && month <= 12) {
+                        monthlyRevenueData[month - 1] = total;
+                    }
+                }
+            }
+        }
+        String revenueChartJson = String.format("[%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]",
+                monthlyRevenueData[0], monthlyRevenueData[1], monthlyRevenueData[2], monthlyRevenueData[3],
+                monthlyRevenueData[4], monthlyRevenueData[5], monthlyRevenueData[6], monthlyRevenueData[7],
+                monthlyRevenueData[8], monthlyRevenueData[9], monthlyRevenueData[10], monthlyRevenueData[11]);
+
+        // B. Xử lý dữ liệu Biểu đồ Tròn - Doanh thu theo Môn học (Doughnut Chart)
+        List<Map<String, Object>> subjectList = adminDAO.getRevenueBySubject();
+
+        // Chuẩn bị các chuỗi JS Array dạng: ['Toán', 'Vật Lý'] và [500000, 300000] đổ thẳng vào Chart.js
+        StringBuilder sbLabels = new StringBuilder("[");
+        StringBuilder sbData = new StringBuilder("[");
+        if (subjectList != null && !subjectList.isEmpty()) {
+            for (int i = 0; i < subjectList.size(); i++) {
+                Map<String, Object> row = subjectList.get(i);
+                String subjectName = row.get("subject") != null ? row.get("subject").toString() : "Môn khác";
+                long total = row.get("total") != null ? ((Number) row.get("total")).longValue() : 0;
+
+                sbLabels.append("'").append(subjectName).append("'");
+                sbData.append(total);
+
+                if (i < subjectList.size() - 1) {
+                    sbLabels.append(",");
+                    sbData.append(",");
+                }
+            }
+        }
+        sbLabels.append("]");
+        sbData.append("]");
+
+        // C. Lấy danh sách gia sư bị báo cáo/khiếu nại (Complaints) hiển thị tại Dashboard
+        List<Map<String, Object>> reportedTutors = adminDAO.getReportedTutors();
+
+        // 4. Đẩy toàn bộ dữ liệu an toàn sang JSP
         req.setAttribute("totalTutors", tutors);
         req.setAttribute("totalStudents", students);
         req.setAttribute("pendingCount", pending);
         req.setAttribute("monthlyRevenue", revenue);
         req.setAttribute("pendingTutors", pendingTutors);
-        req.setAttribute("chartJson", chartJson);
+        req.setAttribute("reportedTutors", reportedTutors); // Đẩy list khiếu nại
 
-        // Đẩy 2 biến tăng trưởng định dạng 1 chữ số thập phân (Ví dụ: "12.5" hoặc "-2.1")
+        // Các biến JSON cho các biểu đồ Chart.js
+        req.setAttribute("chartJson", chartJson);                  // Line Chart (User Growth)
+        req.setAttribute("revenueChartJson", revenueChartJson);    // Bar Chart (Doanh thu năm)
+        req.setAttribute("subjectLabelsJson", sbLabels.toString()); // Doughnut Labels
+        req.setAttribute("subjectDataJson", sbData.toString());     // Doughnut Data
+
+        // Đẩy 2 biến tăng trưởng định dạng 1 chữ số thập phân
         req.setAttribute("tutorGrowth", String.format("%.1f", tutorGrowth));
         req.setAttribute("studentGrowth", String.format("%.1f", studentGrowth));
 
-        // 5. Forward sang trang giao diện
+        // 5. Forward sang trang giao diện dashboard của bạn
         req.getRequestDispatcher("/views/admin/dashboard.jsp").forward(req, resp);
     }
 }

@@ -10,7 +10,13 @@ public class UserSession implements Serializable {
     private String fullname;
     private String avatarUrl;
     private List<String> roles; // Chứa: "ADMIN", "TUTOR", "USER"
+    private Long balance; // Hoặc dùng kiểu private long balance; tùy bạn cấu hình ở database
 
+    // Trong file UserSession.java
+    private String phone; // Thêm trường này
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
     // Constructor, Getters, Setters
     public UserSession() {}
 
@@ -29,5 +35,11 @@ public class UserSession implements Serializable {
 
     public boolean hasRole(String roleName) {
         return roles != null && roles.contains(roleName.toUpperCase());
+    }
+    public Long getBalance() {
+        return balance;
+    }
+    public void setBalance(Long balance) {
+        this.balance = balance;
     }
 }

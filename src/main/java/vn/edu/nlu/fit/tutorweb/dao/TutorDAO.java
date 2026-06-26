@@ -151,7 +151,8 @@ public class TutorDAO {
                 t.verification_status AS verificationStatus,
                 t.school           AS school,
                 t.major            AS major,
-                t.experience_summary AS experienceSummary
+                t.experience_summary AS experienceSummary,
+                 u.is_active AS active
             FROM tutors t
             JOIN users u ON t.user_id = u.id
             ORDER BY t.id DESC

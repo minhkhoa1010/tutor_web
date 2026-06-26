@@ -5,7 +5,8 @@ import vn.edu.nlu.fit.tutorweb.dto.StudentSearchResult;
 import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import vn.edu.nlu.fit.tutorweb.entity.WithdrawalRequest;
-import vn.edu.nlu.fit.tutorweb.dto.AdminUserDTO;
+
+import vn.edu.nlu.fit.tutorweb.dto.AdminReviewDTO;
 import vn.edu.nlu.fit.tutorweb.dto.AdminBookingDTO;
 
 import java.util.ArrayList;
@@ -514,37 +515,7 @@ public class AdminDAO {
             return false; // Có lỗi xảy ra, JDBI tự động ROLLBACK hoàn toàn
         }
     }
-    public List<AdminUserDTO> getAllUsersForAdmin() {
-        String sql = """
-            SELECT 
-                u.id AS id,
-                u.fullname AS fullname,
-                u.email AS email,
-                u.phone AS phone,
-                u.avatar_url AS avatarUrl,
-                u.is_active AS active,
-                DATE_FORMAT(u.created_at, '%d/%m/%Y %H:%i') AS createdAt,
-                GROUP_CONCAT(r.name ORDER BY r.id SEPARATOR ', ') AS roleName
-            FROM users u
-            LEFT JOIN user_roles ur ON u.id = ur.user_id
-            LEFT JOIN roles r ON ur.role_id = r.id
-            GROUP BY 
-                u.id, 
-                u.fullname, 
-                u.email, 
-                u.phone, 
-                u.avatar_url, 
-                u.is_active, 
-                u.created_at
-            ORDER BY u.id DESC
-            """;
 
-        return DBConnect.get().withHandle(handle ->
-                handle.createQuery(sql)
-                        .mapToBean(AdminUserDTO.class)
-                        .list()
-        );
-    }
 
     public boolean updateUserStatus(long userId, boolean active) {
         String sql = """
@@ -635,6 +606,65 @@ public class AdminDAO {
                 handle.createUpdate(sql)
                         .bind("status", status)
                         .bind("id", bookingId)
+                        .execute() > 0
+        );
+    }
+
+    public List<AdminReviewDTO> getAllReviewsForAdmin() {
+        String sql = """
+            SELECT
+                r.id AS reviewId,
+                r.booking_id AS bookingId,
+
+                COALESCE(parent.fullname, 'Chưa xác định') AS parentName,
+                parent.email AS parentEmail,
+
+                COALESCE(tutor_user.fullname, 'Chưa xác định') AS tutorName,
+                tutor_user.email AS tutorEmail,
+
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+                r.rating AS rating,
+                r.comment AS comment,
+                r.is_hidden AS hidden,
+                DATE_FORMAT(r.created_at, '%d/%m/%Y %H:%i') AS createdAt
+            FROM reviews r
+            LEFT JOIN users parent ON r.parent_id = parent.id
+            LEFT JOIN tutors t ON r.tutor_id = t.id
+            LEFT JOIN users tutor_user ON t.user_id = tutor_user.id
+            ORDER BY r.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminReviewDTO.class)
+                        .list()
+        );
+    }
+
+    public boolean updateReviewHiddenStatus(long reviewId, boolean hidden) {
+        String sql = """
+            UPDATE reviews
+            SET is_hidden = :hidden
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("hidden", hidden ? 1 : 0)
+                        .bind("id", reviewId)
+                        .execute() > 0
+        );
+    }
+
+    public boolean deleteReviewByAdmin(long reviewId) {
+        String sql = """
+            DELETE FROM reviews
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("id", reviewId)
                         .execute() > 0
         );
     }

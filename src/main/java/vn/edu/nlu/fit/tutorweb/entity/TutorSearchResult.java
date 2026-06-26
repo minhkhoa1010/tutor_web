@@ -17,6 +17,8 @@ public class TutorSearchResult {
     private String teachingGrade;
     private String availableSchedules;
     private String birthDate; // Đã sửa từ Object thành String đồng bộ với DB và JDBI
+    private boolean active;
+
 
     // 2. Constructor mặc định bắt buộc phải có cho BeanMapper của JDBI hoạt động
     public TutorSearchResult() {
@@ -141,5 +143,13 @@ public class TutorSearchResult {
 
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

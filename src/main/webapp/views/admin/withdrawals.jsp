@@ -78,59 +78,9 @@
 <body>
 <div class="admin-wrapper">
 
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <span class="logo-icon material-symbols-outlined">school</span>
-      <div>
-        <h2>Bá Đạo Admin</h2>
-        <span>Quản lý hệ thống</span>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">dashboard</span>
-        <span>Tổng quan</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/admin/tutors" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">school</span>
-        <span>Gia sư</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/admin/students" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">group</span>
-        <span>Học viên</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/admin/complaints" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">gavel</span>
-        <span>Xử lý khiếu nại</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/admin/quan-ly-lien-he" class="nav-item">
-        <span class="nav-icon material-symbols-outlined">contact_support</span>
-        <span>Yêu cầu liên hệ</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/admin/withdrawals" class="nav-item active">
-        <span class="nav-icon material-symbols-outlined">payments</span><span>Duyệt rút tiền</span>
-      </a>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="sidebar-user">
-        <img src="${not empty sessionScope.clientUser.avatarUrl ? sessionScope.clientUser.avatarUrl : 'https://ui-avatars.com/api/?name=Admin+User&background=1a2f5a&color=fff'}"
-             alt="Admin"
-             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name='+encodeURIComponent('${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Admin User'}')+'&background=random';">
-        <div>
-          <strong><c:out value="${not empty sessionScope.clientUser.fullname ? sessionScope.clientUser.fullname : 'Admin User'}"/></strong>
-          <span>SUPER ADMINISTRATOR</span>
-        </div>
-      </div>
-      <a href="${pageContext.request.contextPath}/admin/settings" class="nav-item settings-item">
-        <span class="nav-icon material-symbols-outlined">settings</span>
-        <span>Cài đặt</span>
-      </a>
-      <a href="${pageContext.request.contextPath}/logout" class="nav-item logout-item">
-        <span class="nav-icon material-symbols-outlined">logout</span>
-        <span>Đăng xuất</span>
-      </a>
-    </div>
-  </aside>
+
+
+<jsp:include page="/views/admin/common/sidebar.jsp" />
 
   <div class="main-content">
     <header class="topbar">

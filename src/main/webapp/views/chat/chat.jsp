@@ -241,6 +241,7 @@
             lastMessageId = Math.max(...messages.map(m => m.id), lastMessageId);
             scrollToBottom();
             await loadConversations(document.getElementById('conversationSearch').value);
+            refreshUnreadBadgeIfAvailable();
         }
     }
 
@@ -329,6 +330,7 @@
             lastMessageId = Math.max(lastMessageId, res.data.id);
             scrollToBottom();
             await loadConversations(document.getElementById('conversationSearch').value);
+            refreshUnreadBadgeIfAvailable();
         } else {
             showToast(res.message || 'Gửi tin nhắn thất bại.');
         }
@@ -448,6 +450,7 @@
                 showToast('Bạn có tin nhắn mới.');
             }
             await loadConversations(document.getElementById('conversationSearch').value);
+            refreshUnreadBadgeIfAvailable();
             return;
         }
 
@@ -456,6 +459,7 @@
                 await loadMessages(false);
             }
             await loadConversations(document.getElementById('conversationSearch').value);
+            refreshUnreadBadgeIfAvailable();
             return;
         }
 
@@ -514,6 +518,12 @@
         toast.textContent = message;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    function refreshUnreadBadgeIfAvailable() {
+        if (typeof window.refreshChatUnreadBadge === 'function') {
+            window.refreshChatUnreadBadge();
+        }
     }
 
     function escapeHtml(value) {

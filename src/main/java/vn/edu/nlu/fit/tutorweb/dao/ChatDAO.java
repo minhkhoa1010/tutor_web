@@ -308,6 +308,25 @@ public class ChatDAO {
                 .list());
     }
 
+    public int countUnreadMessages(long userId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM messages m
+            JOIN conversation_members my_cm
+              ON my_cm.conversation_id = m.conversation_id
+             AND my_cm.user_id = :userId
+            WHERE my_cm.is_deleted = 0
+              AND m.sender_id <> :userId
+              AND m.status = 'SENT'
+              AND m.id > COALESCE(my_cm.last_read_message_id, 0)
+        """;
+
+        return jdbi.withHandle(h -> h.createQuery(sql)
+                .bind("userId", userId)
+                .mapTo(Integer.class)
+                .one());
+    }
+
     public List<ChatMessage> listMessages(long conversationId, long userId, Long afterId) {
         String sql = """
             SELECT

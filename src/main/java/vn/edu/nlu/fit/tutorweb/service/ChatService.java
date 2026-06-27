@@ -20,6 +20,10 @@ public class ChatService {
         return chatDAO.listConversations(userId, keyword);
     }
 
+    public int countUnreadMessages(long userId) {
+        return chatDAO.countUnreadMessages(userId);
+    }
+
     public List<ChatMessage> listMessages(long conversationId, long userId, Long afterId) {
         ensureMember(conversationId, userId);
         List<ChatMessage> messages = chatDAO.listMessages(conversationId, userId, afterId);

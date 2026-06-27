@@ -34,6 +34,12 @@ public class ChatApiServlet extends HttpServlet {
                 return;
             }
 
+            if ("/unread-count".equals(path)) {
+                writeJson(resp, Map.of("success", true, "count",
+                        chatService.countUnreadMessages(user.getId())));
+                return;
+            }
+
             if ("/messages".equals(path)) {
                 long conversationId = parseLong(req.getParameter("conversationId"), "conversationId");
                 Long afterId = optionalLong(req.getParameter("afterId"));

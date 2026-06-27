@@ -51,6 +51,7 @@
                                 <a class="nav-deposit-btn" href="${pageContext.request.contextPath}/tutor/wallet" style="background: #0f172a;"><i class="bi bi-cash-stack"></i> Rút tiền</a>
                             </li>
                             <li><a href="${pageContext.request.contextPath}/tutor/dashboard"><i class="bi bi-speedometer2"></i> Bảng điều khiển</a></li>
+                            <li><a href="${pageContext.request.contextPath}/chat"><i class="bi bi-chat-dots"></i> Tin nhắn</a></li>
                             <li><a href="${pageContext.request.contextPath}/tutor/settings?tab=profile"><i class="bi bi-person-vcard"></i> Hồ sơ năng lực</a></li>
                             <li><a href="${pageContext.request.contextPath}/tutor/my-lessons"><i class="bi bi-journal-check"></i> Lớp học nhận dạy</a></li>
                             <li><a href="${pageContext.request.contextPath}/tutor/wallet"><i class="bi bi-credit-card-2-front"></i> Lịch sử thu nhập</a></li>
@@ -71,6 +72,7 @@
                             </li>
 
                             <li><a href="${pageContext.request.contextPath}/parent/profile"><i class="bi bi-speedometer2"></i> Bảng điều khiển</a></li>
+                            <li><a href="${pageContext.request.contextPath}/chat"><i class="bi bi-chat-dots"></i> Tin nhắn</a></li>
                             <li>
                                 <a href="${pageContext.request.contextPath}/parent/cart" class="nav-cart-link">
                                     <span><i class="bi bi-cart3"></i> Giỏ hàng gia sư</span>

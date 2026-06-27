@@ -190,6 +190,10 @@
 
                                             <%-- CỘT THAO TÁC --%>
                                         <td style="padding:16px; text-align:center;">
+                                            <a href="${pageContext.request.contextPath}/chat?bookingId=${lesson.id}"
+                                               style="background:#0f766e; color:white; border:none; padding:7px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; text-decoration:none; margin-right:6px;">
+                                                <i class="bi bi-chat-dots"></i> Nhắn tin
+                                            </a>
 
                                                 <%-- Nút yêu cầu hoàn thành: chỉ hiện khi đang dạy --%>
                                             <c:if test="${lesson.status == 'ACTIVE' || lesson.status == 'PAID'}">

@@ -56,6 +56,9 @@
     <a href="${pageContext.request.contextPath}/tutor/my-lessons" class="profile-nav-btn" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: #475569; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s;">
       <i class="bi bi-journal-check" style="font-size: 18px;"></i> Lớp học đang dạy
     </a>
+    <a href="${pageContext.request.contextPath}/chat" class="profile-nav-btn" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: #475569; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s;">
+      <i class="bi bi-chat-dots" style="font-size: 18px;"></i> Tin nhắn
+    </a>
     <a href="${pageContext.request.contextPath}/tutor/wallet" class="profile-nav-btn" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: #475569; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s;">
       <i class="bi bi-credit-card-2-front" style="font-size: 18px;"></i> Quản lý ví & Rút tiền
     </a>

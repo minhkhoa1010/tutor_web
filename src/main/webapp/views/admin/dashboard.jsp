@@ -54,6 +54,33 @@
                 </a>
             </div>
 
+            <div class="table-section" style="margin-bottom: 24px;">
+                <div class="table-header">
+                    <h3>Xuất báo cáo CSV</h3>
+                    <span class="new-apps-badge">Admin Export</span>
+                </div>
+
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="${pageContext.request.contextPath}/admin/dashboard/export?type=users"
+                       class="btn-primary"
+                       style="text-decoration:none;">
+                        Xuất người dùng
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/admin/dashboard/export?type=bookings"
+                       class="btn-primary"
+                       style="text-decoration:none;">
+                        Xuất lớp học
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/admin/dashboard/export?type=revenue"
+                       class="btn-primary"
+                       style="text-decoration:none;">
+                        Xuất doanh thu
+                    </a>
+                </div>
+            </div>
+
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-top">
@@ -98,6 +125,17 @@
                     <div class="kpi-label">Tổng học viên</div>
                     <div class="kpi-value"><c:out value="${not empty totalStudents ? totalStudents : '0'}" /></div>
                 </div>
+
+                <div class="kpi-card">
+                        <div class="kpi-top">
+                            <div class="kpi-icon purple-icon material-symbols-outlined">event_note</div>
+                            <span class="kpi-badge new-badge">Lớp</span>
+                        </div>
+                        <div class="kpi-label">Tổng lớp học</div>
+                        <div class="kpi-value">
+                            <c:out value="${not empty totalBookings ? totalBookings : '0'}"/>
+                        </div>
+                    </div>
 
                 <div class="kpi-card">
                     <div class="kpi-top">

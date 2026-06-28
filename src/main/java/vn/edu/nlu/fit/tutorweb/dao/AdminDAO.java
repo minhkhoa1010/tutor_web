@@ -668,4 +668,14 @@ public class AdminDAO {
                         .execute() > 0
         );
     }
+
+    public long countAllBookings() {
+        String sql = "SELECT COUNT(*) FROM bookings";
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(Long.class)
+                        .one()
+        );
+    }
 }

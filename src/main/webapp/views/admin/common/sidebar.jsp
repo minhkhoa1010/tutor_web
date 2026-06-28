@@ -40,12 +40,6 @@
             <span>Lớp học</span>
         </a>
 
-        <a href="${ctx}/admin/payments"
-           class="nav-item ${fn:contains(uri, '/admin/payments') ? 'active' : ''}">
-            <span class="nav-icon material-symbols-outlined">receipt_long</span>
-            <span>Thanh toán</span>
-        </a>
-
         <a href="${ctx}/admin/complaints"
            class="nav-item ${fn:contains(uri, '/admin/complaints') ? 'active' : ''}">
             <span class="nav-icon material-symbols-outlined">gavel</span>
@@ -68,12 +62,6 @@
            class="nav-item ${fn:contains(uri, '/admin/withdrawals') ? 'active' : ''}">
             <span class="nav-icon material-symbols-outlined">payments</span>
             <span>Duyệt rút tiền</span>
-        </a>
-
-        <a href="${ctx}/admin/reports"
-           class="nav-item ${fn:contains(uri, '/admin/reports') ? 'active' : ''}">
-            <span class="nav-icon material-symbols-outlined">bar_chart</span>
-            <span>Báo cáo</span>
         </a>
 
     </nav>

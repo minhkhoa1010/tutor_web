@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Lớp Học – Gia Sư Bá Đạo VN</title>
+    <title> Lớp Học – Gia Sư Bá Đạo VN</title>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
@@ -58,7 +58,7 @@
 
             <div class="page-title-row">
                 <div>
-                    <h1>Quản lý lớp học</h1>
+                    <h1>lớp học</h1>
                     <p>Xem danh sách lớp học, duyệt/từ chối yêu cầu mở lớp và hủy lớp học.</p>
                 </div>
             </div>
@@ -101,7 +101,6 @@
                         <th>HỌC PHÍ</th>
                         <th>NGÀY TẠO</th>
                         <th>TRẠNG THÁI</th>
-                        <th style="text-align:center;">HÀNH ĐỘNG</th>
                     </tr>
                     </thead>
 
@@ -195,66 +194,14 @@
                                         </c:choose>
                                     </td>
 
-                                    <td>
-                                        <div class="booking-action-group">
-                                            <c:if test="${b.status == 'PENDING'}">
-                                                <form class="booking-action-form"
-                                                      action="${ctx}/admin/bookings/action"
-                                                      method="post">
-                                                    <input type="hidden" name="id" value="${b.bookingId}">
-                                                    <input type="hidden" name="action" value="approve">
 
-                                                    <button class="btn-booking-action btn-approve"
-                                                            type="submit"
-                                                            onclick="return confirm('Duyệt yêu cầu mở lớp này?')">
-                                                        <span class="material-symbols-outlined">check</span>
-                                                        Duyệt
-                                                    </button>
-                                                </form>
-
-                                                <form class="booking-action-form"
-                                                      action="${ctx}/admin/bookings/action"
-                                                      method="post">
-                                                    <input type="hidden" name="id" value="${b.bookingId}">
-                                                    <input type="hidden" name="action" value="reject">
-
-                                                    <button class="btn-booking-action btn-reject"
-                                                            type="submit"
-                                                            onclick="return confirm('Từ chối yêu cầu mở lớp này?')">
-                                                        <span class="material-symbols-outlined">close</span>
-                                                        Từ chối
-                                                    </button>
-                                                </form>
-                                            </c:if>
-
-                                            <c:if test="${b.status == 'ACTIVE' || b.status == 'PAID' || b.status == 'PENDING_COMPLETED'}">
-                                                <form class="booking-action-form"
-                                                      action="${ctx}/admin/bookings/action"
-                                                      method="post">
-                                                    <input type="hidden" name="id" value="${b.bookingId}">
-                                                    <input type="hidden" name="action" value="cancel">
-
-                                                    <button class="btn-booking-action btn-cancel"
-                                                            type="submit"
-                                                            onclick="return confirm('Bạn chắc chắn muốn hủy lớp học này?')">
-                                                        <span class="material-symbols-outlined">block</span>
-                                                        Hủy lớp
-                                                    </button>
-                                                </form>
-                                            </c:if>
-
-                                            <c:if test="${b.status != 'PENDING' && b.status != 'ACTIVE' && b.status != 'PAID' && b.status != 'PENDING_COMPLETED'}">
-                                                <span class="muted-action">Không có</span>
-                                            </c:if>
-                                        </div>
-                                    </td>
                                 </tr>
                             </c:forEach>
                         </c:when>
 
                         <c:otherwise>
                             <tr>
-                                <td colspan="9" class="booking-empty">
+                                <td colspan="8" class="booking-empty">
                                     Chưa có lớp học nào.
                                 </td>
                             </tr>

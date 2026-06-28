@@ -989,3 +989,38 @@ a { text-decoration: none; color: inherit; }
             color: #94a3b8;
             font-size: 13px;
         }
+
+
+        .admin-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            background: #f4f7fb;
+        }
+
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            background: #f4f7fb;
+        }
+
+        .topbar {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .page-body {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            padding: 32px 44px;
+        }

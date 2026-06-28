@@ -10,178 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* --- FIX LỖI AVATAR TRÒN & BADGE GỌN GÀNG --- */
-        .complaint-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e2e8f0;
-            vertical-align: middle;
-        }
 
-        .custom-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            text-align: center;
-        }
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #ef4444;
-        }
-        .badge-success {
-            background-color: #d1fae5;
-            color: #10b981;
-        }
-
-        /* --- FIX LỖI ICON BỊ LỆCH --- */
-        .btn-action-view {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: #1e293b;
-            color: #ffffff;
-            border-radius: 6px;
-            font-size: 13px;
-            text-decoration: none;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-action-view:hover {
-            background: #0f172a;
-        }
-        .btn-action-view .material-symbols-outlined {
-            font-size: 18px;
-            vertical-align: middle;
-        }
-
-        /* --- POPUP MODAL XEM CHI TIẾT THUẦN CSS (SIÊU ĐẸP) --- */
-        .custom-modal-backdrop {
-            display: none; /* Ẩn mặc định */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.6); /* Phông tối mờ chuẩn UX */
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
-
-        .custom-modal-box {
-            background: #ffffff;
-            width: 100%;
-            max-width: 550px;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            padding: 24px;
-            animation: modalFadeIn 0.3s ease;
-        }
-
-        @keyframes modalFadeIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-        }
-        .modal-header-title h3 {
-            margin: 0;
-            font-size: 18px;
-            color: #1e293b;
-        }
-        .modal-close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #94a3b8;
-        }
-        .modal-close-btn:hover { color: #64748b; }
-
-        .modal-body-content .info-group {
-            margin-bottom: 14px;
-        }
-        .modal-body-content .info-label {
-            font-size: 12px;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .modal-body-content .info-value {
-            font-size: 15px;
-            color: #0f172a;
-            background: #f8fafc;
-            padding: 10px 12px;
-            border-radius: 6px;
-            border: 1px solid #f1f5f9;
-        }
-        .modal-footer-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 24px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 16px;
-        }
-        /* Tối ưu hóa layout lưới biểu đồ để tất cả các box bằng nhau đến cuối trang */
-        .charts-dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-top: 24px;
-        }
-        .charts-left-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        /* Đồng bộ CSS bảng khiếu nại tránh vỡ giao diện hệ thống */
-        .complaint-tutor-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .complaint-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #e2e8f0;
-        }
-        .evidence-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-        }
-        .evidence-link:hover {
-            text-decoration: underline;
-        }
-        .no-evidence {
-            color: #94a3b8;
-            font-style: italic;
-            font-size: 13px;
-        }
-    </style>
 </head>
 <body>
 <div class="admin-wrapper">
@@ -229,12 +58,18 @@
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon blue-icon material-symbols-outlined">school</div>
+                        <c:set var="tutorGrowthNum" value="${empty tutorGrowth ? 0 : tutorGrowth + 0.0}" />
+
                         <c:choose>
-                            <c:when test="${not empty tutorGrowth && tutorGrowth >= 0}">
-                                <span class="kpi-badge green-badge">+<fmt:formatNumber value="${tutorGrowth}" maxFractionDigits="1"/>%</span>
+                            <c:when test="${tutorGrowthNum ge 0}">
+                                <span class="kpi-badge green-badge">
+                                    +<fmt:formatNumber value="${tutorGrowthNum}" maxFractionDigits="1"/>%
+                                </span>
                             </c:when>
                             <c:otherwise>
-                                <span class="kpi-badge red-badge"><fmt:formatNumber value="${tutorGrowth}" maxFractionDigits="1"/>%</span>
+                                <span class="kpi-badge red-badge">
+                                    <fmt:formatNumber value="${tutorGrowthNum}" maxFractionDigits="1"/>%
+                                </span>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -245,12 +80,18 @@
                 <div class="kpi-card">
                     <div class="kpi-top">
                         <div class="kpi-icon green-icon material-symbols-outlined">group</div>
+                        <c:set var="studentGrowthNum" value="${empty studentGrowth ? 0 : studentGrowth + 0.0}" />
+
                         <c:choose>
-                            <c:when test="${not empty studentGrowth && studentGrowth >= 0}">
-                                <span class="kpi-badge green-badge">+<fmt:formatNumber value="${studentGrowth}" maxFractionDigits="1"/>%</span>
+                            <c:when test="${studentGrowthNum ge 0}">
+                                <span class="kpi-badge green-badge">
+                                    +<fmt:formatNumber value="${studentGrowthNum}" maxFractionDigits="1"/>%
+                                </span>
                             </c:when>
                             <c:otherwise>
-                                <span class="kpi-badge red-badge"><fmt:formatNumber value="${studentGrowth}" maxFractionDigits="1"/>%</span>
+                                <span class="kpi-badge red-badge">
+                                    <fmt:formatNumber value="${studentGrowthNum}" maxFractionDigits="1"/>%
+                                </span>
                             </c:otherwise>
                         </c:choose>
                     </div>

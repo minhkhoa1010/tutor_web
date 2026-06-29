@@ -98,9 +98,14 @@
                                             </c:choose>
                                         </div>
 
-                                        <a href="${pageContext.request.contextPath}/tutor/tutor-detail?id=${tutor.tutorId}" style="text-align: center; background: #0f172a; color: #fff; padding: 12px 0; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.3s;">
-                                            Xem hồ sơ
-                                        </a>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                            <a href="${pageContext.request.contextPath}/chat?bookingId=${tutor.id}" style="text-align: center; background: #0f766e; color: #fff; padding: 12px 0; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.3s;">
+                                                <i class="bi bi-chat-dots"></i> Nhắn tin
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/tutor/tutor-detail?id=${tutor.tutorId}" style="text-align: center; background: #0f172a; color: #fff; padding: 12px 0; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.3s;">
+                                                Xem hồ sơ
+                                            </a>
+                                        </div>
 
                                     </div>
                                 </c:forEach>

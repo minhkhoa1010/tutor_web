@@ -12,6 +12,7 @@
         <nav class="nav-links">
             <a href="${pageContext.request.contextPath}/home"><i class="bi bi-house-door"></i> Trang chủ</a>
             <a href="${pageContext.request.contextPath}/tutors"><i class="bi bi-search"></i> Tìm gia sư</a>
+            <a href="${pageContext.request.contextPath}/ai-advisor"><i class="bi bi-stars"></i> AI Assistant</a>
             <a href="${pageContext.request.contextPath}/policy"><i class="bi bi-journal-text"></i> Hướng dẫn</a>
             <a href="${pageContext.request.contextPath}/lien-he"><i class="bi bi-envelope"></i> Liên hệ</a>
 
@@ -72,6 +73,7 @@
                             </li>
 
                             <li><a href="${pageContext.request.contextPath}/parent/profile"><i class="bi bi-speedometer2"></i> Bảng điều khiển</a></li>
+                            <li><a href="${pageContext.request.contextPath}/ai-advisor"><i class="bi bi-stars"></i> AI Advisor</a></li>
                             <li><a href="${pageContext.request.contextPath}/chat" class="chat-nav-link"><i class="bi bi-chat-dots"></i> Tin nhắn <span class="chat-unread-badge" style="display:none;">0</span></a></li>
                             <li>
                                 <a href="${pageContext.request.contextPath}/parent/cart" class="nav-cart-link">

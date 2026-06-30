@@ -1,0 +1,238 @@
+.status-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.status-approved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+
+
+.action-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-admin-action {
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.btn-detail {
+    background: #f1f5f9;
+    color: #1a2f5a;
+}
+
+.btn-lock {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.btn-unlock {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.btn-admin-action .material-symbols-outlined {
+    font-size: 16px;
+}
+.status-locked {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.table-section {
+    overflow-x: auto;
+}
+
+.tutor-table {
+    width: 100%;
+    min-width: 1350px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.tutor-table th,
+.tutor-table td {
+    vertical-align: middle;
+}
+
+.tutor-table th {
+    white-space: nowrap;
+    text-align: left;
+}
+
+.tutor-table td {
+    word-break: normal;
+}
+
+/* Ảnh */
+.tutor-table th:nth-child(1),
+.tutor-table td:nth-child(1) {
+    text-align: center;
+}
+
+/* Học phí, đánh giá, trạng thái, hành động */
+.tutor-table th:nth-child(6),
+.tutor-table td:nth-child(6),
+.tutor-table th:nth-child(7),
+.tutor-table td:nth-child(7),
+.tutor-table th:nth-child(8),
+.tutor-table td:nth-child(8),
+.tutor-table th:nth-child(9),
+.tutor-table td:nth-child(9) {
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Môn dạy tag */
+.subject-tag {
+    display: inline-block;
+    max-width: 120px;
+    white-space: normal;
+    line-height: 1.35;
+}
+
+/* Trạng thái 1 dòng */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.status-approved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-rejected,
+.status-locked {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Hành động */
+.action-cell {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.action-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.action-wrap form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.btn-admin-action {
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.btn-admin-action .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.btn-detail {
+    background: #f1f5f9;
+    color: #1a2f5a;
+}
+
+.btn-lock {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.btn-unlock {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.rating-cell,
+.status-cell,
+.action-cell {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.status-cell .status-pill {
+    margin: 0 auto;
+}
+
+.action-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.action-wrap form {
+    margin: 0;
+    display: inline-flex;
+}

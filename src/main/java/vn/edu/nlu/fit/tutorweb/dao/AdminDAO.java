@@ -6,6 +6,9 @@ import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 import vn.edu.nlu.fit.tutorweb.dto.TutorProfile;
 import vn.edu.nlu.fit.tutorweb.entity.WithdrawalRequest;
 
+import vn.edu.nlu.fit.tutorweb.dto.AdminReviewDTO;
+import vn.edu.nlu.fit.tutorweb.dto.AdminBookingDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -291,12 +294,15 @@ public class AdminDAO {
     // 2. TỐI ƯU HÓA: Doanh thu theo Môn học trong CHÍNH XÁC tháng/năm hiện tại (Dùng cho Doughnut Chart)
     public List<Map<String, Object>> getRevenueBySubject() {
         String sql = """
-            SELECT b.subject_name as subject, SUM(pr.service_fee) as total
-            FROM platform_revenue pr
-            JOIN bookings b ON pr.booking_id = b.id
-            WHERE MONTH(pr.created_at) = MONTH(CURRENT_DATE())
-              AND YEAR(pr.created_at) = YEAR(CURRENT_DATE())
-            GROUP BY b.subject_name
+                SELECT\s
+                            COALESCE(t.teaching_subject, 'Chưa xác định') AS subject,
+                            COALESCE(SUM(pr.service_fee), 0) AS total
+                        FROM platform_revenue pr
+                        JOIN bookings b ON pr.booking_id = b.id
+                        JOIN tutors t ON b.tutor_id = t.id
+                        WHERE MONTH(pr.created_at) = MONTH(CURRENT_DATE())
+                          AND YEAR(pr.created_at) = YEAR(CURRENT_DATE())
+                        GROUP BY t.teaching_subject
         """;
         return DBConnect.get().withHandle(h -> h.createQuery(sql).mapToMap().list());
     }
@@ -309,22 +315,22 @@ public class AdminDAO {
     public List<Map<String, Object>> getReportedTutors() {
         String sql = """
          SELECT
-               b.id AS booking_id,
-               b.subject_name,
-               b.total_price,
-               u_tutor.fullname AS tutor_name,
-               u_tutor.avatar_url AS avatar_url,
-               u_parent.fullname AS parent_name,
-               b.dispute_reason AS complaint_reason,
-               b.dispute_evidence_url AS dispute_evidence_url,
-               b.dispute_by AS dispute_by
-           FROM bookings b
-           LEFT JOIN tutors t ON b.tutor_id = t.id             -- 1. Nối qua bảng tutors trước
-           LEFT JOIN users u_tutor ON t.user_id = u_tutor.id   -- 2. Từ tutors mới nối qua users
-           LEFT JOIN users u_parent ON b.parent_id = u_parent.id
-           WHERE b.status = 'DISPUTED'
-           ORDER BY b.id DESC
-           LIMIT 5
+                                          b.id AS booking_id,
+                                          COALESCE(t.teaching_subject, 'Chưa xác định') AS subject_name,
+                                          b.total_price,
+                                          u_tutor.fullname AS tutor_name,
+                                          u_tutor.avatar_url AS avatar_url,
+                                          u_parent.fullname AS parent_name,
+                                          b.dispute_reason AS complaint_reason,
+                                          b.dispute_evidence_url AS dispute_evidence_url,
+                                          b.dispute_by AS dispute_by
+                                      FROM bookings b
+                                      LEFT JOIN tutors t ON b.tutor_id = t.id
+                                      LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+                                      LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+                                      WHERE b.status = 'DISPUTED'
+                                      ORDER BY b.id DESC
+                                      LIMIT 5
     """;
 
         return DBConnect.get().withHandle(handle -> handle.createQuery(sql).mapToMap().list());
@@ -508,5 +514,168 @@ public class AdminDAO {
             e.printStackTrace();
             return false; // Có lỗi xảy ra, JDBI tự động ROLLBACK hoàn toàn
         }
+    }
+
+
+    public boolean updateUserStatus(long userId, boolean active) {
+        String sql = """
+            UPDATE users
+            SET is_active = :active
+            WHERE id = :id AND id <> 1
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("active", active ? 1 : 0)
+                        .bind("id", userId)
+                        .execute() > 0
+        );
+    }
+
+    public List<AdminBookingDTO> getAllBookingsForAdmin() {
+        String sql = """
+            SELECT
+                b.id AS bookingId,
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+               'Theo thỏa thuận' AS schedule,
+                b.total_price AS totalPrice,
+                b.status AS status,
+                DATE_FORMAT(b.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+
+                b.parent_id AS parentId,
+                u_parent.fullname AS parentName,
+                u_parent.email AS parentEmail,
+
+                b.tutor_id AS tutorId,
+                u_tutor.fullname AS tutorName,
+                u_tutor.email AS tutorEmail
+            FROM bookings b
+            LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+            LEFT JOIN tutors t ON b.tutor_id = t.id
+            LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+            ORDER BY b.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminBookingDTO.class)
+                        .list()
+        );
+    }
+
+    public List<AdminBookingDTO> getPendingBookingsForAdmin() {
+        String sql = """
+            SELECT
+                b.id AS bookingId,
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+                'Theo thỏa thuận' AS schedule,
+                b.total_price AS totalPrice,
+                b.status AS status,
+                DATE_FORMAT(b.created_at, '%d/%m/%Y %H:%i') AS createdAt,
+
+                b.parent_id AS parentId,
+                u_parent.fullname AS parentName,
+                u_parent.email AS parentEmail,
+
+                b.tutor_id AS tutorId,
+                u_tutor.fullname AS tutorName,
+                u_tutor.email AS tutorEmail
+            FROM bookings b
+            LEFT JOIN users u_parent ON b.parent_id = u_parent.id
+            LEFT JOIN tutors t ON b.tutor_id = t.id
+            LEFT JOIN users u_tutor ON t.user_id = u_tutor.id
+            WHERE b.status = 'PENDING'
+            ORDER BY b.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminBookingDTO.class)
+                        .list()
+        );
+    }
+
+    public boolean updateBookingStatusByAdmin(long bookingId, String status) {
+        String sql = """
+            UPDATE bookings
+            SET status = :status
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("status", status)
+                        .bind("id", bookingId)
+                        .execute() > 0
+        );
+    }
+
+    public List<AdminReviewDTO> getAllReviewsForAdmin() {
+        String sql = """
+            SELECT
+                r.id AS reviewId,
+                r.booking_id AS bookingId,
+
+                COALESCE(parent.fullname, 'Chưa xác định') AS parentName,
+                parent.email AS parentEmail,
+
+                COALESCE(tutor_user.fullname, 'Chưa xác định') AS tutorName,
+                tutor_user.email AS tutorEmail,
+
+                COALESCE(t.teaching_subject, 'Chưa xác định') AS subjectName,
+                r.rating AS rating,
+                r.comment AS comment,
+                r.is_hidden AS hidden,
+                DATE_FORMAT(r.created_at, '%d/%m/%Y %H:%i') AS createdAt
+            FROM reviews r
+            LEFT JOIN users parent ON r.parent_id = parent.id
+            LEFT JOIN tutors t ON r.tutor_id = t.id
+            LEFT JOIN users tutor_user ON t.user_id = tutor_user.id
+            ORDER BY r.id DESC
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToBean(AdminReviewDTO.class)
+                        .list()
+        );
+    }
+
+    public boolean updateReviewHiddenStatus(long reviewId, boolean hidden) {
+        String sql = """
+            UPDATE reviews
+            SET is_hidden = :hidden
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("hidden", hidden ? 1 : 0)
+                        .bind("id", reviewId)
+                        .execute() > 0
+        );
+    }
+
+    public boolean deleteReviewByAdmin(long reviewId) {
+        String sql = """
+            DELETE FROM reviews
+            WHERE id = :id
+            """;
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("id", reviewId)
+                        .execute() > 0
+        );
+    }
+
+    public long countAllBookings() {
+        String sql = "SELECT COUNT(*) FROM bookings";
+
+        return DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(Long.class)
+                        .one()
+        );
     }
 }

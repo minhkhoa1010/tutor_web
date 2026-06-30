@@ -2,11 +2,11 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<jsp:include page="/views/common/header.jsp">
-    <jsp:param name="pageTitle" value="Cập nhật hồ sơ ứng tuyển - Gia Sư Bá Đạo" />
-    <jsp:param name="pageCss" value="/assets/css/register.css" />
-</jsp:include>
-<jsp:include page="/views/common/navbar.jsp" />
+<c:set var="pageTitle" value="Cập nhật hồ sơ ứng tuyển - Gia Sư Bá Đạo" scope="request"/>
+<c:set var="pageCss" value="/assets/css/register.css" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
+<jsp:include page="/views/common/navbar.jsp"/>
 
 <main class="page-main">
     <div class="container">

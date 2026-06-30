@@ -1,9 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
-<jsp:include page="/views/common/header.jsp">
-  <jsp:param name="pageTitle" value="Đăng nhập hệ thống - Gia Sư Bá Đạo" />
-</jsp:include>
+<c:set var="pageTitle" value="Đăng nhập hệ thống - Gia Sư Bá Đạo" scope="request"/>
+
+<jsp:include page="/views/common/header.jsp"/>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css">
 

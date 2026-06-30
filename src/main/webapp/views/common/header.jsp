@@ -2,12 +2,15 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <%
-    String ctx = request.getContextPath();
+     request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
-    String pageTitle =
-            request.getParameter("pageTitle") != null
-                    ? request.getParameter("pageTitle")
-                    : (String) request.getAttribute("pageTitle");
+        String ctx = request.getContextPath();
+
+        String pageTitle = (String) request.getAttribute("pageTitle");
+        if (pageTitle == null || pageTitle.isBlank()) {
+            pageTitle = "Gia Sư Bá Đạo";
+        }
 
     String pageCss =
             request.getParameter("pageCss") != null

@@ -15,7 +15,8 @@ import java.util.List;
 @WebServlet(urlPatterns = {
         "/admin/tutor-detail",
         "/admin/approve-tutor",
-        "/admin/reject-tutor"
+        "/admin/reject-tutor",
+        "/admin/toggle-tutor-status"
 })
 public class AdminTutorServlet extends HttpServlet {
     private final AdminDAO adminDAO = new AdminDAO();
@@ -34,6 +35,30 @@ public class AdminTutorServlet extends HttpServlet {
         long tutorId = Long.parseLong(idParam);
 
         switch (path) {
+            // khóa/mở khóa tutor
+            case "/admin/toggle-tutor-status" -> {
+                String action = request.getParameter("action");
+
+                if (action != null) {
+                    int newStatus = "unlock".equalsIgnoreCase(action) ? 1 : 0;
+
+                    DBConnect.get().withHandle(handle ->
+                            handle.createUpdate("""
+                        UPDATE users u
+                        JOIN tutors t ON t.user_id = u.id
+                        SET u.is_active = :status
+                        WHERE t.id = :tutorId
+                        """)
+                                    .bind("status", newStatus)
+                                    .bind("tutorId", tutorId)
+                                    .execute()
+                    );
+                }
+
+                response.sendRedirect(request.getContextPath() + "/admin/tutors");
+            }
+
+
             case "/admin/tutor-detail" -> {
                 TutorProfile tutor = adminDAO.getTutorProfileById(tutorId);
                 if (tutor != null) {

@@ -8,23 +8,38 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.edu.nlu.fit.tutorweb.dao.AdminDAO;
 import vn.edu.nlu.fit.tutorweb.dto.TutorPending;
 
+import vn.edu.nlu.fit.tutorweb.db.DBConnect;
+
 import java.io.IOException;
 import java.util.Calendar;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/admin/dashboard")
+@WebServlet(urlPatterns = {
+        "/admin/dashboard",
+        "/admin/dashboard/export"
+})
 public class AdminDashboardServlet extends HttpServlet {
 
     private final AdminDAO adminDAO = new AdminDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        String path = req.getServletPath();
+
+        if ("/admin/dashboard/export".equals(path)) {
+            exportCsv(req, resp);
+            return;
+        }
+
         // 1. Lấy các số liệu tổng quan hệ thống
         long tutors = adminDAO.countTutors();
         long students = adminDAO.countStudents();
         long pending = adminDAO.countPendingTutors();
         long revenue = adminDAO.getMonthlyRevenue();
+        long totalBookings = adminDAO.countAllBookings();
 
         List<TutorPending> pendingTutors = adminDAO.getPendingTutors();
 
@@ -115,6 +130,7 @@ public class AdminDashboardServlet extends HttpServlet {
         req.setAttribute("totalStudents", students);
         req.setAttribute("pendingCount", pending);
         req.setAttribute("monthlyRevenue", revenue);
+        req.setAttribute("totalBookings", totalBookings);
         req.setAttribute("pendingTutors", pendingTutors);
         req.setAttribute("reportedTutors", reportedTutors); // Đẩy list khiếu nại
 
@@ -130,5 +146,119 @@ public class AdminDashboardServlet extends HttpServlet {
 
         // 5. Forward sang trang giao diện dashboard của bạn
         req.getRequestDispatcher("/views/admin/dashboard.jsp").forward(req, resp);
+    }
+
+    private void exportCsv(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        String type = request.getParameter("type");
+
+        String filename;
+        String sql;
+
+        switch (type == null ? "" : type) {
+            case "users" -> {
+                filename = "bao_cao_nguoi_dung.csv";
+                sql = """
+                    SELECT
+                        u.id AS id,
+                        u.fullname AS fullname,
+                        u.email AS email,
+                        u.username AS username,
+                        u.is_active AS is_active,
+                        DATE_FORMAT(u.created_at, '%d/%m/%Y %H:%i') AS created_at
+                    FROM users u
+                    ORDER BY u.id DESC
+                    """;
+            }
+
+            case "bookings" -> {
+                filename = "bao_cao_lop_hoc.csv";
+                sql = """
+                    SELECT
+                        b.id AS booking_id,
+                        parent.fullname AS parent_name,
+                        tutor_user.fullname AS tutor_name,
+                        t.teaching_subject AS subject_name,
+                        b.total_price AS total_price,
+                        b.status AS status,
+                        DATE_FORMAT(b.created_at, '%d/%m/%Y %H:%i') AS created_at
+                    FROM bookings b
+                    LEFT JOIN users parent ON b.parent_id = parent.id
+                    LEFT JOIN tutors t ON b.tutor_id = t.id
+                    LEFT JOIN users tutor_user ON t.user_id = tutor_user.id
+                    ORDER BY b.id DESC
+                    """;
+            }
+
+            case "revenue" -> {
+                filename = "bao_cao_doanh_thu.csv";
+                sql = """
+                    SELECT
+                        tr.id AS transaction_id,
+                        u.fullname AS fullname,
+                        u.email AS email,
+                        tr.type AS type,
+                        tr.amount AS amount,
+                        tr.status AS status,
+                        tr.vnp_txn_ref AS vnp_txn_ref,
+                        DATE_FORMAT(tr.created_at, '%d/%m/%Y %H:%i') AS created_at
+                    FROM transactions tr
+                    LEFT JOIN users u ON tr.user_id = u.id
+                    ORDER BY tr.id DESC
+                    """;
+            }
+
+            default -> {
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+                return;
+            }
+        }
+
+        List<Map<String, Object>> rows = DBConnect.get().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write('\uFEFF');
+
+            if (rows.isEmpty()) {
+                writer.println("Khong co du lieu");
+                return;
+            }
+
+            Map<String, Object> firstRow = rows.get(0);
+
+            writer.println(String.join(",", firstRow.keySet()));
+
+            for (Map<String, Object> row : rows) {
+                String line = row.values()
+                        .stream()
+                        .map(this::csvValue)
+                        .reduce((a, b) -> a + "," + b)
+                        .orElse("");
+
+                writer.println(line);
+            }
+        }
+    }
+
+    private String csvValue(Object value) {
+        if (value == null) {
+            return "";
+        }
+
+        String text = String.valueOf(value);
+        text = text.replace("\"", "\"\"");
+
+        return "\"" + text + "\"";
     }
 }

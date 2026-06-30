@@ -125,8 +125,8 @@ public class AdminDashboardServlet extends HttpServlet {
         req.setAttribute("subjectDataJson", sbData.toString());     // Doughnut Data
 
         // Đẩy 2 biến tăng trưởng định dạng 1 chữ số thập phân
-        req.setAttribute("tutorGrowth", String.format("%.1f", tutorGrowth));
-        req.setAttribute("studentGrowth", String.format("%.1f", studentGrowth));
+        req.setAttribute("tutorGrowth", tutorGrowth);
+        req.setAttribute("studentGrowth", studentGrowth);
 
         // 5. Forward sang trang giao diện dashboard của bạn
         req.getRequestDispatcher("/views/admin/dashboard.jsp").forward(req, resp);

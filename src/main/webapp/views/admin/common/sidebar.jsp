@@ -3,7 +3,10 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
-<c:set var="uri" value="${pageContext.request.requestURI}" />
+<c:set var="uri" value="${requestScope['jakarta.servlet.forward.request_uri']}" />
+<c:if test="${empty uri}">
+    <c:set var="uri" value="${pageContext.request.requestURI}" />
+</c:if>>
 
 <aside class="sidebar">
     <div class="sidebar-logo">
